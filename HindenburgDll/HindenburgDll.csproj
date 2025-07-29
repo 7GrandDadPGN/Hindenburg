@@ -7,6 +7,9 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Reference Include="0Harmony">
+      <HintPath>..\..\..\Unity\Projects\airship-template\build\client_windows\MelonLoader\net6\0Harmony.dll</HintPath>
+    </Reference>
     <Reference Include="Il2CppAirship.LuauCore">
       <HintPath>..\..\..\Unity\Projects\airship-template\build\client_windows\MelonLoader\Il2CppAssemblies\Il2CppAirship.LuauCore.dll</HintPath>
     </Reference>

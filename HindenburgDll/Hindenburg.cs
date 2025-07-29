@@ -14,6 +14,7 @@ using Action = System.Action;
 using System.Collections;
 using Il2CppLuau;
 using Il2Cpp;
+using HarmonyLib;
 
 [assembly: MelonInfo(typeof(Hindenburg), "Hindenburg", "1.0.0", "7GrandDad")]
 namespace HindenburgDll
@@ -39,6 +40,8 @@ namespace HindenburgDll
             {
                 obj.CreateDefinitions();
             }
+
+            LuaPatch.reloadAction += ReloadHandlers;
 
             Task.Run(() => {
                 NamedPipeServerStream server = new NamedPipeServerStream("AirshipExecutor");
@@ -70,5 +73,31 @@ namespace HindenburgDll
             });
         }
 
+        public void ReloadHandlers()
+        {
+            envHolder = CreateHolder(env);
+            CompileUtils.envHolderInst = envHolder;
+        }
+
+        public override void OnSceneWasLoaded(int buildIndex, string sceneName)
+        {
+            if (envHolder.globalState == IntPtr.Zero)
+            {
+                ReloadHandlers();
+            }
+        }
+    }
+
+    [HarmonyPatch(typeof(LuauCore), "ResetContext", new Type[] { typeof(LuauContext) })]
+    public static class LuaPatch
+    {
+        public static event Action reloadAction;
+        private static void Postfix(LuauContext context)
+        {
+            if (context == LuauContext.Protected)
+            {
+                reloadAction?.Invoke();
+            }
+        }
     }
 }
