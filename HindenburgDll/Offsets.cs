@@ -28,6 +28,7 @@ namespace HindenburgDll
         public static int lua_settop = 0x916c0;
         public static int lua_type = 0x91dc0;
         public static int lua_xmove = 0x91eb0;
+        public static int lua_yield = 0x95200;
 
         public static int luaL_argerrorL = 0x92500;
         public static int luaL_checkany = 0x92680;
