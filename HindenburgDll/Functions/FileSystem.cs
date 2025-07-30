@@ -176,12 +176,12 @@ namespace HindenburgDll.Functions
 
         public override string LibraryName()
         {
-            return "FileSystem";
+            return "filesystem";
         }
 
         public override bool PushToGlobal()
         {
-            return true;
+            return false;
         }
     }
 }

@@ -24,6 +24,7 @@ namespace HindenburgDll
         private string autoExecutePath = "";
         private StringBuilder builder = new StringBuilder();
         private FunctionHolder[] env = new FunctionHolder[] {
+            new Functions.Crypt(),
             new Functions.Closures(),
             new Functions.Globals(),
             new Functions.FileSystem()

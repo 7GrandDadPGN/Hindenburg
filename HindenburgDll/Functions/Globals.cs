@@ -11,11 +11,13 @@ using UnityEditor;
 using static MelonLoader.MelonLogger;
 using System.Text;
 using Il2CppSystem.Windows.Forms;
+using System.Security.Cryptography;
 
 namespace HindenburgDll.Functions
 {
     internal class Globals : FunctionHolder
     {
+        private static SHA384 sha = SHA384.Create();
         private struct UnityObjectStruct
         {
             public int context;
@@ -99,6 +101,26 @@ namespace HindenburgDll.Functions
             return 1;
         }
 
+        public static int getscripthash(IntPtr luaState)
+        {
+            IntPtr instanceId = api.luaL_checkudata(luaState, 1, "UnityObject");
+            UnityObjectStruct uStruct = Marshal.PtrToStructure<UnityObjectStruct>(instanceId);
+            Il2CppSystem.Object obj = ThreadDataManager.GetObjectReference(luaState, uStruct.objectId);
+
+            if (obj is AirshipComponent)
+            {
+                AirshipComponent compObj = (AirshipComponent)obj;
+                byte[] hash = sha.ComputeHash(compObj.script.m_bytes);
+                LuauPluginRaw.PushString(luaState, BitConverter.ToString(hash).Replace("-", "").ToLower());
+            }
+            else
+            {
+                LuauPluginRaw.PushNil(luaState);
+            }
+
+            return 1;
+        }
+
         public static int getinstances(IntPtr luaState)
         {
             GameObject[] list = Object.FindObjectsByType<GameObject>(FindObjectsSortMode.None);
@@ -169,12 +191,15 @@ namespace HindenburgDll.Functions
 
         public override void CreateDefinitions()
         {
+            Add("base64encode", Crypt.base64encode);
+            Add("base64decode", Crypt.base64decode);
             Add("getgenv", getgenv);
             Add("getrenv", getrenv);
             Add("getreg", getreg);
             Add("getrawmetatable", getrawmetatable);
             Add("getscripts", getscripts);
             Add("getscriptbytecode", getscriptbytecode);
+            Add("getscripthash", getscripthash);
             Add("getinstances", getinstances);
             Add("run_protected", run_protected);
             Add("setclipboard", setclipboard);
@@ -187,7 +212,7 @@ namespace HindenburgDll.Functions
 
         public override string LibraryName()
         {
-            return "Global";
+            return "globals";
         }
 
         public override bool PushToGlobal()
