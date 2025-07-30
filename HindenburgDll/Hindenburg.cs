@@ -28,7 +28,8 @@ namespace HindenburgDll
 			new Functions.Crypt(),
 			new Functions.Closures(),
 			new Functions.Globals(),
-			new Functions.FileSystem()
+			new Functions.FileSystem(),
+			new Functions.Http()
 		};
 		private EnvHolder envHolder;
 

@@ -20,7 +20,17 @@ namespace HindenburgDll.Functions
 			HttpClient client = new(handler);
 			HttpRequestMessage request = new(HttpMethod.Get, url);
 
-			var response = client.SendAsync(request);
+			return api.YieldThread(luaState, async () =>
+			{
+				var response = await client.SendAsync(request);
+				var body = await response.Content.ReadAsByteArrayAsync();
+				return () =>
+				{
+					api.lua_pushlstringB(luaState, body);
+				};
+			});
+
+			/*var response = client.SendAsync(request);
 			CancellationTokenSource token = new();
 			Hindenburg.tokenList.Add(token);
 			var test = api.lua_yield(luaState, 0);
@@ -33,43 +43,12 @@ namespace HindenburgDll.Functions
 				api.lua_pushlstringB(luaState, body);
 				LuauPlugin.LuauResumeThread(test);
 				Hindenburg.tokenList.Remove(token);
-			});
-			return 1;
-		}
-
-		public static int waitsec(IntPtr luaState)
-		{
-			Il2CppSystem.Action value = (Il2CppSystem.Action)(async () =>
-			{
-				await Il2CppSystem.Threading.Tasks.Task.Delay(1000);
-				//LuauPluginRaw.PushString(luaState, "hi");
-			});
-
-			Il2CppSystem.Threading.Tasks.Task ourTask = Il2CppSystem.Threading.Tasks.Task.Run(value);
-			AwaitingTask realTask = new()
-			{
-				Thread = luaState,
-				ThreadRef = 0,
-				Task = ourTask,
-				Method = value.Method,
-				Context = LuauContext.Game,
-				Type = value.GetIl2CppType()
-			};
-
-			LuauPluginRaw.PushThread(luaState);
-			realTask.ThreadRef = LuauPluginRaw.Ref(luaState, -1);
-			LuauPluginRaw.Pop(luaState, 1);
-			_awaitingTasks.Add(realTask);
-
-			ourTask.Wait();
-
-			return 0;
+			});*/
 		}
 
 		public override void CreateDefinitions()
 		{
 			Add("httpget", httpget);
-			Add("waitsec", waitsec);
 			luaReg.Add(new luaL_Reg { name = IntPtr.Zero, func = IntPtr.Zero });
 		}
 
