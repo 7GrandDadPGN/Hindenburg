@@ -148,7 +148,6 @@ namespace HindenburgDll.Functions
                 for (int i = 0; i < Files.Length; i++)
                 {
                     FileInfo File = Files[i];
-
                     LuauPluginRaw.PushString(luaState, File.FullName.Substring(basePath.Length + 1));
                     api.lua_rawseti(luaState, -2, i);
                 }
