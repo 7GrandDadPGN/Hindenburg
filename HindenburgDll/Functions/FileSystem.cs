@@ -94,10 +94,10 @@ namespace HindenburgDll.Functions
             return 1;
         }
 
-        public static int writefile(IntPtr luaState)
+        public static int appendfile(IntPtr luaState)
         {
             string filePath = GetSafePath(luaState);
-            byte[] bData = api.lua_checkstringB(luaState, 2);
+            byte[] inputData = api.lua_checkstringB(luaState, 2);
             string fileExtension = Path.GetExtension(filePath);
 
             if (!whitelistedExtentions.Contains(fileExtension))
@@ -105,7 +105,34 @@ namespace HindenburgDll.Functions
                 api.luaL_argerrorL(luaState, 1, $"non whitelisted extension type {fileExtension}");
             }
 
-            File.WriteAllBytes(filePath, bData);
+            if (File.Exists(filePath))
+            {
+                byte[] fileData = File.ReadAllBytes(filePath);
+                byte[] combinedData = new byte[fileData.Length + inputData.Length];
+                Buffer.BlockCopy(fileData, 0, combinedData, 0, fileData.Length);
+                Buffer.BlockCopy(inputData, 0, combinedData, fileData.Length, inputData.Length);
+                File.WriteAllBytes(filePath, combinedData);
+            }
+            else
+            {
+                api.luaL_argerrorL(luaState, 1, "Path does not exist");
+            }
+
+            return 0;
+        }
+
+        public static int writefile(IntPtr luaState)
+        {
+            string filePath = GetSafePath(luaState);
+            byte[] inputData = api.lua_checkstringB(luaState, 2);
+            string fileExtension = Path.GetExtension(filePath);
+
+            if (!whitelistedExtentions.Contains(fileExtension))
+            {
+                api.luaL_argerrorL(luaState, 1, $"non whitelisted extension type {fileExtension}");
+            }
+
+            File.WriteAllBytes(filePath, inputData);
             return 0;
         }
 
@@ -141,6 +168,7 @@ namespace HindenburgDll.Functions
             Add("delfolder", delfolder);
             Add("isfile", isfile);
             Add("readfile", readfile);
+            Add("appendfile", appendfile);
             Add("writefile", writefile);
             Add("listfiles", listfiles);
             luaReg.Add(new luaL_Reg { name = IntPtr.Zero, func = IntPtr.Zero });
