@@ -21,13 +21,14 @@ namespace HindenburgDll
 	public class Hindenburg : MelonMod
 	{
 		public static List<CancellationTokenSource> tokenList = new List<CancellationTokenSource>();
-        private string autoExecutePath = "";
+		private string autoExecutePath = "";
 		private StringBuilder builder = new StringBuilder();
 		private FunctionHolder[] env = new FunctionHolder[] {
 			new Functions.Crypt(),
 			new Functions.Closures(),
 			new Functions.Globals(),
-			new Functions.FileSystem()
+			new Functions.FileSystem(),
+			new Functions.Http()
 		};
 		private EnvHolder envHolder;
 
