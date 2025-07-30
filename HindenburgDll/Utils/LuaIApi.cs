@@ -104,6 +104,8 @@ namespace HindenburgDll.Utils
 		public delegate IntPtr xmove(IntPtr luaState, IntPtr destState, int idx);
 		public xmove lua_xmove = Marshal.GetDelegateForFunctionPointer<xmove>(new IntPtr(handle.ToInt64() + Offsets.lua_xmove));
 
+        public StateAndIdPointer lua_yield = Marshal.GetDelegateForFunctionPointer<StateAndIdPointer>(new IntPtr(handle.ToInt64() + Offsets.lua_yield));
+
 
 
 		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
