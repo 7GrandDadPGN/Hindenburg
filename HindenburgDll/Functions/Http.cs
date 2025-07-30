@@ -2,6 +2,7 @@
 using HindenburgDll.Utils;
 using System.Net;
 using Il2Cpp;
+using System.Diagnostics;
 
 namespace HindenburgDll.Functions
 {
@@ -22,7 +23,32 @@ namespace HindenburgDll.Functions
 			if (!api.lua_isnoneornil(luaState, -1)) {
 				body = api.lua_checkstring(luaState, -1);
 			}
-			return 1;
+
+			Dictionary<string, string> headers = new();
+			api.lua_getfield(luaState, 1, "Headers");
+			if (!api.lua_isnoneornil(luaState, -1))
+			{
+				api.luaL_checktype(luaState, -1, (int)LuaIApi.lua_Type.LUA_TTABLE);
+				LuauPluginRaw.PushNil(luaState);
+				while (api.lua_next(luaState, -2) != 0)
+				{
+					string key = api.lua_checkstring(luaState, -2);
+					string value = api.lua_checkstring(luaState, -1);
+					LuauPluginRaw.PushString(luaState, value);
+					headers[key] = value;
+				}
+				LuauPluginRaw.Pop(luaState, 1);
+			}
+
+			/*LuauPluginRaw.Pop(luaState, -1);
+
+			LuauPluginRaw.NewTable(luaState);
+			foreach(var arg in headers)
+			{
+				LuauPluginRaw.PushString(luaState, arg.Value);
+				api.lua_setfield(luaState, -1, arg.Key);
+			}*/
+			return 0;
 		}
 
 		public static int httpget(IntPtr luaState)
