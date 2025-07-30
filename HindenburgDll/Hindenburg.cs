@@ -20,7 +20,8 @@ namespace HindenburgDll
 {
 	public class Hindenburg : MelonMod
 	{
-		private string autoExecutePath = "";
+		public static List<CancellationTokenSource> tokenList = new List<CancellationTokenSource>();
+        private string autoExecutePath = "";
 		private StringBuilder builder = new StringBuilder();
 		private FunctionHolder[] env = new FunctionHolder[] {
 			new Functions.Crypt(),
@@ -85,6 +86,12 @@ namespace HindenburgDll
 
 		public void ReloadHandlers()
 		{
+			foreach (CancellationTokenSource token in tokenList)
+			{
+				token.Cancel();
+			}
+
+			tokenList.Clear();
 			envHolder = CreateHolder(env);
 			CompileUtils.envHolderInst = envHolder;
 		}
