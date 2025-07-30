@@ -88,7 +88,11 @@ namespace HindenburgDll.Utils
 
 		public StateAndIdPointer lua_pushvalue = Marshal.GetDelegateForFunctionPointer<StateAndIdPointer>(new IntPtr(handle.ToInt64() + Offsets.lua_pushvalue));
 		public StatePointer lua_newthread = Marshal.GetDelegateForFunctionPointer<StatePointer>(new IntPtr(handle.ToInt64() + Offsets.lua_newthread));
-		public StateAndIdBool lua_next = Marshal.GetDelegateForFunctionPointer<StateAndIdBool>(new IntPtr(handle.ToInt64() + Offsets.lua_next));
+
+		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+		public delegate int next(IntPtr luaState, int idx);
+		public next lua_next = Marshal.GetDelegateForFunctionPointer<next>(new IntPtr(handle.ToInt64() + Offsets.lua_next));
+
 		public StateAndIdPointer lua_setmetatable = Marshal.GetDelegateForFunctionPointer<StateAndIdPointer>(new IntPtr(handle.ToInt64() + Offsets.lua_setmetatable));
 
 		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
