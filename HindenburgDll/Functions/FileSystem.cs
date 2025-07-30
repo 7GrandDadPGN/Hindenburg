@@ -180,7 +180,7 @@ namespace HindenburgDll.Functions
 
         public override bool PushToGlobal()
         {
-            return false;
+            return true;
         }
     }
 }
