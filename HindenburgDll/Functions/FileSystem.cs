@@ -56,7 +56,7 @@ namespace HindenburgDll.Functions
         {
             string folderPath = GetSafePath(luaState);
 
-            if (folderPath.Equals(basePath))
+            if (!folderPath.Equals(basePath))
             {
                 if (Directory.Exists(folderPath))
                 {
