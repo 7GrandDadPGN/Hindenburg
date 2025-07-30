@@ -13,6 +13,7 @@
 		public static int lua_getmetatable = 0x8fc50;
 		public static int lua_getreadonly = 0x8fd20;
 		public static int lua_newthread = 0x901e0;
+		public static int lua_next = 0x90370;
 		public static int lua_pushlstring = 0x90730;
 		public static int lua_pushvalue = 0x90920;
 		public static int lua_rawseti = 0x90f20;
