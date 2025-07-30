@@ -94,6 +94,36 @@ namespace HindenburgDll.Functions
             return 1;
         }
 
+        public static int loadfile(IntPtr luaState)
+        {
+            string filePath = GetSafePath(luaState);
+
+            if (File.Exists(filePath))
+            {
+                string code = File.ReadAllText(filePath);
+                string chunkName = api.luaL_optlstring(luaState, 2, RandomString(8));
+                api.lua_limittop(luaState, 1);
+                CompilationResult compilationResult = CompileScriptData(code, chunkName);
+
+                if (!compilationResult.Compiled)
+                {
+                    LuauPluginRaw.PushNil(luaState);
+                    return 1;
+                }
+
+                IntPtr namePointer = Marshal.StringToCoTaskMemUTF8(chunkName);
+                api.luau_load(luaState, namePointer, compilationResult.Data, (int)compilationResult.DataSize, 0);
+                api.lua_setsafeenv(luaState, Offsets.LUA_GLOBALSINDEX, false);
+                Marshal.FreeCoTaskMem(namePointer);
+            }
+            else
+            {
+                api.luaL_argerrorL(luaState, 1, "Path does not exist");
+            }
+
+            return 1;
+        }
+
         public static int appendfile(IntPtr luaState)
         {
             string filePath = GetSafePath(luaState);
@@ -167,6 +197,7 @@ namespace HindenburgDll.Functions
             Add("delfolder", delfolder);
             Add("isfile", isfile);
             Add("readfile", readfile);
+            Add("loadfile", loadfile);
             Add("appendfile", appendfile);
             Add("writefile", writefile);
             Add("listfiles", listfiles);
