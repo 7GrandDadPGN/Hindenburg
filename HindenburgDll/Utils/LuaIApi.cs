@@ -104,7 +104,9 @@ namespace HindenburgDll.Utils
 		public delegate IntPtr xmove(IntPtr luaState, IntPtr destState, int idx);
 		public xmove lua_xmove = Marshal.GetDelegateForFunctionPointer<xmove>(new IntPtr(handle.ToInt64() + Offsets.lua_xmove));
 
-		public StateAndIdPointer lua_yield = Marshal.GetDelegateForFunctionPointer<StateAndIdPointer>(new IntPtr(handle.ToInt64() + Offsets.lua_yield));
+		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+		public delegate int yield(IntPtr luaState, int idx);
+		public yield lua_yield = Marshal.GetDelegateForFunctionPointer<yield>(new IntPtr(handle.ToInt64() + Offsets.lua_yield));
 
 
 
@@ -211,6 +213,35 @@ namespace HindenburgDll.Utils
 		public string luaL_optlstring(IntPtr thread, int idx, string extra)
 		{
 			return lua_isnoneornil(thread, idx) ? extra : lua_checkstring(thread, idx);
+		}
+
+		public int YieldThread(IntPtr luaState, Func<Task<Action>> callback)
+		{
+			AwaitingTask realTask = new AwaitingTask
+			{
+				Thread = luaState,
+				ThreadRef = 0
+			};
+
+			realTask.Task = Task.Run(callback);
+			if (realTask.Task.IsCompleted)
+			{
+				if (realTask.Task.IsFaulted)
+				{
+					luaL_error(luaState, "lol exception");
+					return 0;
+				}
+
+				TaskPatch.ResumeAsyncTask(realTask, true);
+				return 0;
+			}
+
+			LuauPluginRaw.PushThread(luaState);
+			realTask.ThreadRef = LuauPluginRaw.Ref(luaState, -1);
+			LuauPluginRaw.Pop(luaState, 1);
+			Hindenburg.awaitingTasks.Add(realTask);
+
+			return lua_yield(luaState, 0);
 		}
 	}
 }
