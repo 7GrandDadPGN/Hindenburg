@@ -169,10 +169,10 @@ namespace HindenburgDll
 				}
 				catch
 				{
-                    LuauPluginRaw.PushString(thread, $"Error: Exception thrown in");
-                    ThreadDataManager.Error(thread);
-                    LuauPlugin.LuauResumeThreadError(thread);
-                }
+					LuauPluginRaw.PushString(thread, $"Error: Exception thrown in");
+					ThreadDataManager.Error(thread);
+					LuauPlugin.LuauResumeThreadError(thread);
+				}
 			}
 		}
 	}
