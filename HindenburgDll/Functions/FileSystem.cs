@@ -1,0 +1,159 @@
+﻿using System.Runtime.InteropServices;
+using static HindenburgDll.Utils.CompileUtils;
+using static HindenburgDll.Utils.LuaIApi;
+using HindenburgDll.Utils;
+using Il2Cpp;
+using System.Text;
+
+namespace HindenburgDll.Functions
+{
+    internal class FileSystem : FunctionHolder
+    {
+        public static string basePath = @"";
+        private readonly static List<string> whitelistedExtentions = new List<string>
+        {
+            ".txt", ".json", ".lua", ".luau",
+            ".dat", ".bin", ".luac",
+            ".png", ".jpg", ".webp", ".jpeg", ".bmp",
+            ".ogg", ".mp3", ".mid",
+            ".mp4", ".webm", ".mov", ""
+        };
+
+        private static string GetSafePath(IntPtr luaState)
+        {
+            string destPath = api.lua_checkstring(luaState, 1); // error on invalid type (in this case string)
+            string inputPath = Path.GetFullPath(basePath + "/" + destPath);
+
+            if (!inputPath.StartsWith(basePath))
+            {
+                api.luaL_argerrorL(luaState, 1, "Invalid path");
+            }
+
+            return inputPath;
+        }
+
+        public static int isfolder(IntPtr luaState)
+        {
+            string folderPath = GetSafePath(luaState);
+            LuauPluginRaw.PushBoolean(luaState, Directory.Exists(folderPath));
+            return 1;
+        }
+
+        public static int makefolder(IntPtr luaState)
+        {
+            string folderPath = GetSafePath(luaState);
+
+            if (!Directory.Exists(folderPath))
+            {
+                Directory.CreateDirectory(folderPath);
+            }
+
+            LuauPluginRaw.PushBoolean(luaState, Directory.Exists(folderPath));
+            return 1;
+        }
+
+        public static int delfolder(IntPtr luaState)
+        {
+            string folderPath = GetSafePath(luaState);
+
+            if (folderPath.Equals(basePath))
+            {
+                if (Directory.Exists(folderPath))
+                {
+                    Directory.Delete(folderPath, true);
+                }
+            }
+            else
+            {
+                api.luaL_error(luaState, "Cannot delete workspace folder");
+            }
+
+            return 0;
+        }
+
+        public static int isfile(IntPtr luaState)
+        {
+            string filePath = GetSafePath(luaState);
+            LuauPluginRaw.PushBoolean(luaState, File.Exists(filePath));
+            return 1;
+        }
+
+        public static int readfile(IntPtr luaState)
+        {
+            string filePath = GetSafePath(luaState);
+
+            if (File.Exists(filePath))
+            {
+                api.lua_pushlstringB(luaState, File.ReadAllBytes(filePath));
+            }
+            else
+            {
+                api.luaL_argerrorL(luaState, 1, "Path does not exist");
+            }
+
+            return 1;
+        }
+
+        public static int writefile(IntPtr luaState)
+        {
+            string filePath = GetSafePath(luaState);
+            byte[] bData = api.lua_checkstringB(luaState, 2);
+            string fileExtension = Path.GetExtension(filePath);
+
+            if (!whitelistedExtentions.Contains(fileExtension))
+            {
+                api.luaL_argerrorL(luaState, 1, $"non whitelisted extension type {fileExtension}");
+            }
+
+            File.WriteAllBytes(filePath, bData);
+            return 0;
+        }
+
+        public static int listfiles(IntPtr luaState)
+        {
+            string filePath = GetSafePath(luaState);
+
+            if (Directory.Exists(filePath))
+            {
+                FileInfo[] Files = new DirectoryInfo(filePath).GetFiles();
+                LuauPluginRaw.NewTable(luaState);
+
+                for (int i = 0; i < Files.Length; i++)
+                {
+                    FileInfo File = Files[i];
+
+                    LuauPluginRaw.PushString(luaState, File.FullName.Substring(basePath.Length + 1));
+                    api.lua_rawseti(luaState, -2, i);
+                }
+            }
+            else
+            {
+                api.luaL_argerrorL(luaState, 1, "Path does not exist");
+            }
+
+            return 1;
+        }
+
+        public override void CreateDefinitions()
+        {
+            Add("isfolder", isfolder);
+            Add("makefolder", makefolder);
+            Add("delfolder", delfolder);
+            Add("isfile", isfile);
+            Add("readfile", readfile);
+            Add("writefile", writefile);
+            Add("listfiles", listfiles);
+            luaReg.Add(new luaL_Reg { name = IntPtr.Zero, func = IntPtr.Zero });
+        }
+
+        public override string LibraryName()
+        {
+            return "FileSystem";
+        }
+
+        public override bool PushToGlobal()
+        {
+            return true;
+        }
+    }
+}

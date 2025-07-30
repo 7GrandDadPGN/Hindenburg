@@ -19,6 +19,7 @@ namespace HindenburgDll
         public static int lua_getmetatable = 0x8fc50;
         public static int lua_getreadonly = 0x8fd20;
         public static int lua_newthread = 0x901e0;
+        public static int lua_pushlstring = 0x90730;
         public static int lua_pushvalue = 0x90920;
         public static int lua_rawseti = 0x90f20;
         public static int lua_setfield = 0x91370;
@@ -28,11 +29,13 @@ namespace HindenburgDll
         public static int lua_type = 0x91dc0;
         public static int lua_xmove = 0x91eb0;
 
+        public static int luaL_argerrorL = 0x92500;
         public static int luaL_checkany = 0x92680;
         public static int luaL_checkboolean = 0x926c0;
         public static int luaL_checklstring = 0x92780;
         public static int luaL_checktype = 0x92840;
         public static int luaL_checkudata = 0x92880;
+        public static int luaL_error = 0x929a0;
         public static int luaL_optlstring = 0x92c90;
         public static int luaL_register = 0x92fa0;
         public static int luaL_sandboxthread = 0x93670;

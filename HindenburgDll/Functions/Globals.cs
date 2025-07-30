@@ -89,7 +89,7 @@ namespace HindenburgDll.Functions
             if (obj is AirshipComponent)
             {
                 AirshipComponent compObj = (AirshipComponent)obj;
-                LuauPluginRaw.PushString(luaState, Encoding.UTF8.GetString(compObj.script.m_bytes));
+                api.lua_pushlstringB(luaState, compObj.script.m_bytes);
             }
             else
             {

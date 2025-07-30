@@ -21,10 +21,12 @@ namespace HindenburgDll
 {
     public class Hindenburg : MelonMod
     {
+        private string autoExecutePath = "";
         private StringBuilder builder = new StringBuilder();
         private FunctionHolder[] env = new FunctionHolder[] {
             new Functions.Closures(),
-            new Functions.Globals()
+            new Functions.Globals(),
+            new Functions.FileSystem()
         };
         private EnvHolder envHolder;
 
@@ -47,13 +49,21 @@ namespace HindenburgDll
                 NamedPipeServerStream server = new NamedPipeServerStream("AirshipExecutor");
                 server.WaitForConnection();
 
-                LoggerInstance.Msg($"pipe connected!");
+                LoggerInstance.Msg($"Executor initialized!");
                 StreamReader reader = new StreamReader(server);
                 while (server.IsConnected)
                 {
                     int lchar = reader.Read();
                     if (lchar == -1 || lchar == 255)
                     {
+                        if (autoExecutePath == "")
+                        {
+                            autoExecutePath = Path.GetFullPath(builder.ToString() + "/autoexec");
+                            Functions.FileSystem.basePath = Path.GetFullPath(builder.ToString() + "/workspace");
+                            builder.Clear();
+                            continue;
+                        }
+
                         MelonCoroutines.Start(MainThreadCoroutine(() =>
                         {
                             string code = builder.ToString();
@@ -84,6 +94,19 @@ namespace HindenburgDll
             if (envHolder.globalState == IntPtr.Zero)
             {
                 ReloadHandlers();
+            }
+
+            if (autoExecutePath != "" && sceneName == "CoreScene" && buildIndex == 1)
+            {
+                FileInfo[] files = new DirectoryInfo(autoExecutePath).GetFiles();
+
+                foreach (FileInfo file in files)
+                {
+                    if (file.Extension == ".lua")
+                    {
+                        ExecuteScript(File.ReadAllText(file.FullName), envHolder, false);
+                    }
+                }
             }
         }
     }
