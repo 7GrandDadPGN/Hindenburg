@@ -119,6 +119,10 @@ namespace HindenburgDll.Utils
 
                 Marshal.FreeCoTaskMem(chunkPointer);
             }
+            else
+            {
+                Debug.LogWarning(Marshal.PtrToStringUTF8(data.Data, (int)data.DataSize));
+            }
         }
 
         private static readonly string randomChars = "0123456789abcdefghijklmnopqrstuvwxyz";
