@@ -4,124 +4,123 @@
  */
 using MelonLoader;
 
-using HindenburgDll;
-using System.IO.Pipes;
-using System.Text;
-using HindenburgDll.Utils;
 using static HindenburgDll.Utils.CompileUtils;
-using IntPtr = System.IntPtr;
 using Action = System.Action;
+using IntPtr = System.IntPtr;
+using HindenburgDll.Utils;
 using System.Collections;
-using Il2CppLuau;
-using Il2Cpp;
+using System.IO.Pipes;
+using HindenburgDll;
+using System.Text;
 using HarmonyLib;
+using Il2Cpp;
 
 [assembly: MelonInfo(typeof(Hindenburg), "Hindenburg", "1.0.0", "7GrandDad")]
 namespace HindenburgDll
 {
-    public class Hindenburg : MelonMod
-    {
-        private string autoExecutePath = "";
-        private StringBuilder builder = new StringBuilder();
-        private FunctionHolder[] env = new FunctionHolder[] {
-            new Functions.Crypt(),
-            new Functions.Closures(),
-            new Functions.Globals(),
-            new Functions.FileSystem()
-        };
-        private EnvHolder envHolder;
+	public class Hindenburg : MelonMod
+	{
+		private string autoExecutePath = "";
+		private StringBuilder builder = new StringBuilder();
+		private FunctionHolder[] env = new FunctionHolder[] {
+			new Functions.Crypt(),
+			new Functions.Closures(),
+			new Functions.Globals(),
+			new Functions.FileSystem()
+		};
+		private EnvHolder envHolder;
 
-        private static IEnumerator MainThreadCoroutine(Action action)
-        {
-            yield return null;
-            action?.Invoke();
-        }
+		private static IEnumerator MainThreadCoroutine(Action action)
+		{
+			yield return null;
+			action?.Invoke();
+		}
 
-        public override void OnInitializeMelon()
-        {
-            foreach (FunctionHolder obj in env)
-            {
-                obj.CreateDefinitions();
-            }
+		public override void OnInitializeMelon()
+		{
+			foreach (FunctionHolder obj in env)
+			{
+				obj.CreateDefinitions();
+			}
 
-            LuaPatch.reloadAction += ReloadHandlers;
+			LuaPatch.reloadAction += ReloadHandlers;
 
-            Task.Run(() => {
-                NamedPipeServerStream server = new NamedPipeServerStream("AirshipExecutor");
-                server.WaitForConnection();
+			Task.Run(() => {
+				NamedPipeServerStream server = new NamedPipeServerStream("AirshipExecutor");
+				server.WaitForConnection();
 
-                LoggerInstance.Msg($"Executor initialized!");
-                StreamReader reader = new StreamReader(server);
-                while (server.IsConnected)
-                {
-                    int lchar = reader.Read();
-                    if (lchar == -1 || lchar == 255)
-                    {
-                        if (autoExecutePath == "")
-                        {
-                            autoExecutePath = Path.GetFullPath(builder.ToString() + "/autoexec");
-                            Functions.FileSystem.basePath = Path.GetFullPath(builder.ToString() + "/workspace");
-                            builder.Clear();
-                            continue;
-                        }
+				LoggerInstance.Msg($"Executor initialized!");
+				StreamReader reader = new StreamReader(server);
+				while (server.IsConnected)
+				{
+					int lchar = reader.Read();
+					if (lchar == -1 || lchar == 255)
+					{
+						if (autoExecutePath == "")
+						{
+							autoExecutePath = Path.GetFullPath(builder.ToString() + "/autoexec");
+							Functions.FileSystem.basePath = Path.GetFullPath(builder.ToString() + "/workspace");
+							builder.Clear();
+							continue;
+						}
 
-                        MelonCoroutines.Start(MainThreadCoroutine(() =>
-                        {
-                            string code = builder.ToString();
-                            builder.Clear();
-                            if (envHolder.globalState != IntPtr.Zero)
-                            {
-                                LoggerInstance.Msg($"executed {code}");
-                                ExecuteScript(code, envHolder, false);
-                            }
-                        }));
-                    }
-                    else
-                    {
-                        builder.Append((char)lchar);
-                    }
-                }
-            });
-        }
+						MelonCoroutines.Start(MainThreadCoroutine(() =>
+						{
+							string code = builder.ToString();
+							builder.Clear();
+							if (envHolder.globalState != IntPtr.Zero)
+							{
+								LoggerInstance.Msg($"executed {code}");
+								ExecuteScript(code, envHolder, false);
+							}
+						}));
+					}
+					else
+					{
+						builder.Append((char)lchar);
+					}
+				}
+			});
+		}
 
-        public void ReloadHandlers()
-        {
-            envHolder = CreateHolder(env);
-            CompileUtils.envHolderInst = envHolder;
-        }
+		public void ReloadHandlers()
+		{
+			envHolder = CreateHolder(env);
+			CompileUtils.envHolderInst = envHolder;
+		}
 
-        public override void OnSceneWasLoaded(int buildIndex, string sceneName)
-        {
-            if (envHolder.globalState == IntPtr.Zero)
-            {
-                ReloadHandlers();
-            }
+		public override void OnSceneWasLoaded(int buildIndex, string sceneName)
+		{
+			if (envHolder.globalState == IntPtr.Zero)
+			{
+				ReloadHandlers();
+			}
 
-            if (autoExecutePath != "" && sceneName == "CoreScene" && buildIndex == 1)
-            {
-                FileInfo[] files = new DirectoryInfo(autoExecutePath).GetFiles();
+			if (autoExecutePath != "" && sceneName == "CoreScene" && buildIndex == 1)
+			{
+				FileInfo[] files = new DirectoryInfo(autoExecutePath).GetFiles();
 
-                foreach (FileInfo file in files)
-                {
-                    if (file.Extension == ".lua")
-                    {
-                        ExecuteScript(File.ReadAllText(file.FullName), envHolder, false);
-                    }
-                }
-            }
-        }
-    }
+				foreach (FileInfo file in files)
+				{
+					if (file.Extension == ".lua")
+					{
+						ExecuteScript(File.ReadAllText(file.FullName), envHolder, false);
+					}
+				}
+			}
+		}
+	}
 
-    [HarmonyPatch(typeof(LuauCore), "ResetContext", new Type[] { typeof(LuauContext) })]
-    public static class LuaPatch
-    {
-        public static event Action reloadAction;
-        private static void Postfix(LuauContext context)
-        {
-            if (context == LuauContext.Protected)
-            {
-                reloadAction?.Invoke();
-            }
-        }
-    }
+	[HarmonyPatch(typeof(LuauCore), "ResetContext", new Type[] { typeof(LuauContext) })]
+	public static class LuaPatch
+	{
+		public static event Action reloadAction;
+		private static void Postfix(LuauContext context)
+		{
+			if (context == LuauContext.Protected)
+			{
+				reloadAction?.Invoke();
+			}
+		}
+	}
 }
