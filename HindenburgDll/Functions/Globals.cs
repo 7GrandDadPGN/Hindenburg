@@ -135,6 +135,12 @@ namespace HindenburgDll.Functions
 			return 1;
 		}
 
+		public static int getfpscap(IntPtr luaState)
+		{
+			LuauPluginRaw.PushInteger(luaState, UnityEngine.Application.targetFrameRate);
+			return 1;
+		}
+
 		public static int run_protected(IntPtr luaState)
 		{
 			string code = api.lua_checkstring(luaState, 1);
@@ -170,6 +176,13 @@ namespace HindenburgDll.Functions
 			return 0;
 		}
 
+		public static int setfpscap(IntPtr luaState)
+		{
+			int target = api.luaL_checkinteger(luaState, 1);
+			UnityEngine.Application.targetFrameRate = target;
+			return 0;
+		}
+
 		public static int isreadonly(IntPtr luaState)
 		{
 			api.luaL_checktype(luaState, 1, (int)LuaIApi.lua_Type.LUA_TTABLE);
@@ -189,6 +202,7 @@ namespace HindenburgDll.Functions
 			Add("base64encode", Crypt.base64encode);
 			Add("base64decode", Crypt.base64decode);
 			Add("getgenv", getgenv);
+			Add("getfpscap", getfpscap);
 			Add("getrenv", getrenv);
 			Add("getreg", getreg);
 			Add("getrawmetatable", getrawmetatable);
@@ -200,6 +214,7 @@ namespace HindenburgDll.Functions
 			Add("setclipboard", setclipboard);
 			Add("setrawmetatable", setrawmetatable);
 			Add("setreadonly", setreadonly);
+			Add("setfpscap", setfpscap);
 			Add("isreadonly", isreadonly);
 			Add("identifyexecutor", identifyexecutor);
 			luaReg.Add(new luaL_Reg { name = IntPtr.Zero, func = IntPtr.Zero });

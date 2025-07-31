@@ -28,6 +28,7 @@
 		public static int luaL_argerrorL = 0x92500;
 		public static int luaL_checkany = 0x92680;
 		public static int luaL_checkboolean = 0x926c0;
+		public static int luaL_checkinteger = 0x92740;
 		public static int luaL_checklstring = 0x92780;
 		public static int luaL_checktype = 0x92840;
 		public static int luaL_checkudata = 0x92880;

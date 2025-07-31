@@ -155,6 +155,8 @@ namespace HindenburgDll.Utils
 			return ret;
 		}
 
+		public yield luaL_checkinteger = Marshal.GetDelegateForFunctionPointer<yield>(new IntPtr(handle.ToInt64() + Offsets.luaL_checkinteger));
+
 		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
 		public delegate IntPtr checkudata(IntPtr luaState, int idx, IntPtr str);
 		public checkudata checkudataC = Marshal.GetDelegateForFunctionPointer<checkudata>(new IntPtr(handle.ToInt64() + Offsets.luaL_checkudata));
@@ -215,6 +217,7 @@ namespace HindenburgDll.Utils
 		{
 			return lua_isnoneornil(thread, idx) ? extra : luaL_checkboolean(thread, idx);
 		}
+
 		public string luaL_optlstring(IntPtr thread, int idx, string extra)
 		{
 			return lua_isnoneornil(thread, idx) ? extra : lua_checkstring(thread, idx);
