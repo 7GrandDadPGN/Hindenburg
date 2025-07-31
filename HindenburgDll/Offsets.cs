@@ -9,6 +9,8 @@
 		public static int luaAirship_require = 0x10610;
 
 		public static int lua_iscfunction = 0x8ff00;
+		public static int lua_isnumber = 0x8ff70;
+		public static int lua_isstring = 0x90010;
 		public static int lua_getfield = 0x8fb70;
 		public static int lua_getmetatable = 0x8fc50;
 		public static int lua_getreadonly = 0x8fd20;
@@ -35,6 +37,7 @@
 		public static int luaL_error = 0x929a0;
 		public static int luaL_optlstring = 0x92c90;
 		public static int luaL_register = 0x92fa0;
+		public static int luaL_typeerrorL = 0x93330;
 		public static int luaL_sandboxthread = 0x93670;
 
 		public static int luau_load = 0x972d0;

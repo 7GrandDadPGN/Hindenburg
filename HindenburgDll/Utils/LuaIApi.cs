@@ -49,25 +49,11 @@ namespace HindenburgDll.Utils
 		public delegate IntPtr FieldPointer(IntPtr luaState, int idx, IntPtr str);
 
 		public StatePointer luaAirship_require = Marshal.GetDelegateForFunctionPointer<StatePointer>(new IntPtr(handle.ToInt64() + Offsets.luaAirship_require));
-
 		public StateAndIdBool lua_iscfunction = Marshal.GetDelegateForFunctionPointer<StateAndIdBool>(new IntPtr(handle.ToInt64() + Offsets.lua_iscfunction));
+		public StateAndIdBool lua_isnumber = Marshal.GetDelegateForFunctionPointer<StateAndIdBool>(new IntPtr(handle.ToInt64() + Offsets.lua_isnumber));
+		public StateAndIdBool lua_isstring = Marshal.GetDelegateForFunctionPointer<StateAndIdBool>(new IntPtr(handle.ToInt64() + Offsets.lua_isstring));
 		private FieldPointer getfield = Marshal.GetDelegateForFunctionPointer<FieldPointer>(new IntPtr(handle.ToInt64() + Offsets.lua_getfield));
-		public IntPtr lua_getfield(IntPtr thread, int idx, string str)
-		{
-			IntPtr strPtr = Marshal.StringToCoTaskMemUTF8(str);
-			IntPtr res = getfield(thread, idx, strPtr);
-			Marshal.FreeCoTaskMem(strPtr);
-			return res;
-		}
-
 		private FieldPointer setfield = Marshal.GetDelegateForFunctionPointer<FieldPointer>(new IntPtr(handle.ToInt64() + Offsets.lua_setfield));
-		public void lua_setfield(IntPtr thread, int idx, string str)
-		{
-			IntPtr strPtr = Marshal.StringToCoTaskMemUTF8(str);
-			setfield(thread, idx, strPtr);
-			Marshal.FreeCoTaskMem(strPtr);
-		}
-
 		public StateAndIdPointer lua_getmetatable = Marshal.GetDelegateForFunctionPointer<StateAndIdPointer>(new IntPtr(handle.ToInt64() + Offsets.lua_getmetatable));
 		public StateAndIdBool lua_getreadonly = Marshal.GetDelegateForFunctionPointer<StateAndIdBool>(new IntPtr(handle.ToInt64() + Offsets.lua_getreadonly));
 
@@ -78,27 +64,17 @@ namespace HindenburgDll.Utils
 		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
 		public delegate IntPtr pushlstring(IntPtr luaState, IntPtr str, int length);
 		public pushlstring lua_pushlstring = Marshal.GetDelegateForFunctionPointer<pushlstring>(new IntPtr(handle.ToInt64() + Offsets.lua_pushlstring));
-		public void lua_pushlstringB(IntPtr luaState, byte[] bytes)
-		{
-			IntPtr data = Marshal.AllocCoTaskMem(bytes.Length);
-			Marshal.Copy(bytes, 0, data, bytes.Length);
-			lua_pushlstring(luaState, data, bytes.Length);
-			Marshal.FreeCoTaskMem(data);
-		}
-
 		public StateAndIdPointer lua_pushvalue = Marshal.GetDelegateForFunctionPointer<StateAndIdPointer>(new IntPtr(handle.ToInt64() + Offsets.lua_pushvalue));
 		public StatePointer lua_newthread = Marshal.GetDelegateForFunctionPointer<StatePointer>(new IntPtr(handle.ToInt64() + Offsets.lua_newthread));
 
 		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
 		public delegate int next(IntPtr luaState, int idx);
 		public next lua_next = Marshal.GetDelegateForFunctionPointer<next>(new IntPtr(handle.ToInt64() + Offsets.lua_next));
-
 		public StateAndIdPointer lua_setmetatable = Marshal.GetDelegateForFunctionPointer<StateAndIdPointer>(new IntPtr(handle.ToInt64() + Offsets.lua_setmetatable));
 
 		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
 		public delegate IntPtr setsafeenv(IntPtr luaState, int idx, bool safe);
 		public setsafeenv lua_setsafeenv = Marshal.GetDelegateForFunctionPointer<setsafeenv>(new IntPtr(handle.ToInt64() + Offsets.lua_setsafeenv));
-
 		public StateAndIdPointer lua_settop = Marshal.GetDelegateForFunctionPointer<StateAndIdPointer>(new IntPtr(handle.ToInt64() + Offsets.lua_settop));
 
 		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
@@ -115,30 +91,58 @@ namespace HindenburgDll.Utils
 
 
 
-		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-		public delegate IntPtr argerror(IntPtr luaState, int idx, IntPtr str);
-		public checkudata argerrorC = Marshal.GetDelegateForFunctionPointer<checkudata>(new IntPtr(handle.ToInt64() + Offsets.luaL_argerrorL));
-		public IntPtr luaL_argerrorL(IntPtr thread, int idx, string str)
-		{
-			IntPtr strPtr = Marshal.StringToCoTaskMemUTF8(str);
-			IntPtr res = argerrorC(thread, idx, strPtr);
-			Marshal.FreeCoTaskMem(strPtr);
-			return res;
-		}
-
-		public StateAndIdPointer luaL_checkany = Marshal.GetDelegateForFunctionPointer<StateAndIdPointer>(new IntPtr(handle.ToInt64() + Offsets.luaL_checkany));
+		public FieldPointer luaL_argerror = Marshal.GetDelegateForFunctionPointer<FieldPointer>(new IntPtr(handle.ToInt64() + Offsets.luaL_argerrorL));
+		public FieldPointer luaL_typeerror = Marshal.GetDelegateForFunctionPointer<FieldPointer>(new IntPtr(handle.ToInt64() + Offsets.luaL_typeerrorL));
 
 		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
 		public delegate IntPtr checktype(IntPtr luaState, int idx, int type);
 		public checktype luaL_checktype = Marshal.GetDelegateForFunctionPointer<checktype>(new IntPtr(handle.ToInt64() + Offsets.luaL_checktype));
-
-		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-		public delegate bool checkboolean(IntPtr luaState, int idx);
-		public checkboolean luaL_checkboolean = Marshal.GetDelegateForFunctionPointer<checkboolean>(new IntPtr(handle.ToInt64() + Offsets.luaL_checkboolean));
+		public StateAndIdBool luaL_checkboolean = Marshal.GetDelegateForFunctionPointer<StateAndIdBool>(new IntPtr(handle.ToInt64() + Offsets.luaL_checkboolean));
 
 		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
 		public delegate IntPtr checklstring(IntPtr luaState, int idx, ref int size);
 		public checklstring luaL_checklstring = Marshal.GetDelegateForFunctionPointer<checklstring>(new IntPtr(handle.ToInt64() + Offsets.luaL_checklstring));
+		public yield luaL_checkinteger = Marshal.GetDelegateForFunctionPointer<yield>(new IntPtr(handle.ToInt64() + Offsets.luaL_checkinteger));
+		public FieldPointer checkudataC = Marshal.GetDelegateForFunctionPointer<FieldPointer>(new IntPtr(handle.ToInt64() + Offsets.luaL_checkudata));
+
+		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+		public delegate IntPtr luaerror(IntPtr luaState, IntPtr str);
+		public luaerror luaerrorc = Marshal.GetDelegateForFunctionPointer<luaerror>(new IntPtr(handle.ToInt64() + Offsets.luaL_error));
+
+		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+		public delegate IntPtr register(IntPtr luaState, IntPtr libName, FunctionHolder.luaL_Reg[] luaReg);
+		public register luaL_register = Marshal.GetDelegateForFunctionPointer<register>(new IntPtr(handle.ToInt64() + Offsets.luaL_register));
+		public StatePointer luaL_sandboxthread = Marshal.GetDelegateForFunctionPointer<StatePointer>(new IntPtr(handle.ToInt64() + Offsets.luaL_sandboxthread));
+
+
+
+		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+		public delegate IntPtr luauload(IntPtr luaState, IntPtr chunkName, IntPtr bytecode, int bytecodeSize, int native);
+		public luauload luau_load = Marshal.GetDelegateForFunctionPointer<luauload>(new IntPtr(handle.ToInt64() + Offsets.luau_load));
+
+		public IntPtr lua_getfield(IntPtr thread, int idx, string str)
+		{
+			IntPtr strPtr = Marshal.StringToCoTaskMemUTF8(str);
+			IntPtr res = getfield(thread, idx, strPtr);
+			Marshal.FreeCoTaskMem(strPtr);
+			return res;
+		}
+
+		public void lua_setfield(IntPtr thread, int idx, string str)
+		{
+			IntPtr strPtr = Marshal.StringToCoTaskMemUTF8(str);
+			setfield(thread, idx, strPtr);
+			Marshal.FreeCoTaskMem(strPtr);
+		}
+
+		public void lua_pushlstringB(IntPtr luaState, byte[] bytes)
+		{
+			IntPtr data = Marshal.AllocCoTaskMem(bytes.Length);
+			Marshal.Copy(bytes, 0, data, bytes.Length);
+			lua_pushlstring(luaState, data, bytes.Length);
+			Marshal.FreeCoTaskMem(data);
+		}
+
 		public string lua_checkstring(IntPtr thread, int idx)
 		{
 			int size = 0;
@@ -154,41 +158,6 @@ namespace HindenburgDll.Utils
 			Marshal.Copy(str, ret, 0, size);
 			return ret;
 		}
-
-		public yield luaL_checkinteger = Marshal.GetDelegateForFunctionPointer<yield>(new IntPtr(handle.ToInt64() + Offsets.luaL_checkinteger));
-
-		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-		public delegate IntPtr checkudata(IntPtr luaState, int idx, IntPtr str);
-		public checkudata checkudataC = Marshal.GetDelegateForFunctionPointer<checkudata>(new IntPtr(handle.ToInt64() + Offsets.luaL_checkudata));
-		public IntPtr luaL_checkudata(IntPtr thread, int idx, string str)
-		{
-			IntPtr strPtr = Marshal.StringToCoTaskMemUTF8(str);
-			IntPtr res = checkudataC(thread, idx, strPtr);
-			Marshal.FreeCoTaskMem(strPtr);
-			return res;
-		}
-
-		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-		public delegate IntPtr luaerror(IntPtr luaState, IntPtr str);
-		public luaerror luaerrorc = Marshal.GetDelegateForFunctionPointer<luaerror>(new IntPtr(handle.ToInt64() + Offsets.luaL_error));
-		public IntPtr luaL_error(IntPtr thread, string str)
-		{
-			IntPtr strPtr = Marshal.StringToCoTaskMemUTF8(str);
-			IntPtr res = luaerrorc(thread, strPtr);
-			Marshal.FreeCoTaskMem(strPtr);
-			return res;
-		}
-
-		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-		public delegate IntPtr register(IntPtr luaState, IntPtr libName, FunctionHolder.luaL_Reg[] luaReg);
-		public register luaL_register = Marshal.GetDelegateForFunctionPointer<register>(new IntPtr(handle.ToInt64() + Offsets.luaL_register));
-		public StatePointer luaL_sandboxthread = Marshal.GetDelegateForFunctionPointer<StatePointer>(new IntPtr(handle.ToInt64() + Offsets.luaL_sandboxthread));
-
-
-
-		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-		public delegate IntPtr luauload(IntPtr luaState, IntPtr chunkName, IntPtr bytecode, int bytecodeSize, int native);
-		public luauload luau_load = Marshal.GetDelegateForFunctionPointer<luauload>(new IntPtr(handle.ToInt64() + Offsets.luau_load));
 
 		public bool lua_isnoneornil(IntPtr thread, int idx)
 		{
@@ -211,6 +180,38 @@ namespace HindenburgDll.Utils
 			{
 				lua_settop(thread, max);
 			}
+		}
+
+		public IntPtr luaL_checkudata(IntPtr thread, int idx, string str)
+		{
+			IntPtr strPtr = Marshal.StringToCoTaskMemUTF8(str);
+			IntPtr res = checkudataC(thread, idx, strPtr);
+			Marshal.FreeCoTaskMem(strPtr);
+			return res;
+		}
+
+		public IntPtr luaL_error(IntPtr thread, string str)
+		{
+			IntPtr strPtr = Marshal.StringToCoTaskMemUTF8(str);
+			IntPtr res = luaerrorc(thread, strPtr);
+			Marshal.FreeCoTaskMem(strPtr);
+			return res;
+		}
+
+		public IntPtr luaL_argerrorL(IntPtr thread, int idx, string str)
+		{
+			IntPtr strPtr = Marshal.StringToCoTaskMemUTF8(str);
+			IntPtr res = luaL_argerror(thread, idx, strPtr);
+			Marshal.FreeCoTaskMem(strPtr);
+			return res;
+		}
+
+		public IntPtr luaL_typeerrorL(IntPtr thread, int idx, string str)
+		{
+			IntPtr strPtr = Marshal.StringToCoTaskMemUTF8(str);
+			IntPtr res = luaL_typeerror(thread, idx, strPtr);
+			Marshal.FreeCoTaskMem(strPtr);
+			return res;
 		}
 
 		public bool luaL_optboolean(IntPtr thread, int idx, bool extra)
