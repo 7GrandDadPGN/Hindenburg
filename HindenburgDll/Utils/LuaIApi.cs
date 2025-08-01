@@ -77,6 +77,8 @@ namespace HindenburgDll.Utils
 		public setsafeenv lua_setsafeenv = Marshal.GetDelegateForFunctionPointer<setsafeenv>(new IntPtr(handle.ToInt64() + Offsets.lua_setsafeenv));
 		public StateAndIdPointer lua_settop = Marshal.GetDelegateForFunctionPointer<StateAndIdPointer>(new IntPtr(handle.ToInt64() + Offsets.lua_settop));
 
+		public checklstring lua_tolstring = Marshal.GetDelegateForFunctionPointer<checklstring>(new IntPtr(handle.ToInt64() + Offsets.lua_tolstring));
+
 		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
 		public delegate int type(IntPtr luaState, int idx);
 		public type lua_type = Marshal.GetDelegateForFunctionPointer<type>(new IntPtr(handle.ToInt64() + Offsets.lua_type));
@@ -84,15 +86,13 @@ namespace HindenburgDll.Utils
 		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
 		public delegate IntPtr xmove(IntPtr luaState, IntPtr destState, int idx);
 		public xmove lua_xmove = Marshal.GetDelegateForFunctionPointer<xmove>(new IntPtr(handle.ToInt64() + Offsets.lua_xmove));
-
-		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-		public delegate int yield(IntPtr luaState, int idx);
-		public yield lua_yield = Marshal.GetDelegateForFunctionPointer<yield>(new IntPtr(handle.ToInt64() + Offsets.lua_yield));
+		public type lua_yield = Marshal.GetDelegateForFunctionPointer<type>(new IntPtr(handle.ToInt64() + Offsets.lua_yield));
 
 
 
 		public FieldPointer luaL_argerror = Marshal.GetDelegateForFunctionPointer<FieldPointer>(new IntPtr(handle.ToInt64() + Offsets.luaL_argerrorL));
 		public FieldPointer luaL_typeerror = Marshal.GetDelegateForFunctionPointer<FieldPointer>(new IntPtr(handle.ToInt64() + Offsets.luaL_typeerrorL));
+		public StateAndIdPointer luaL_checkany = Marshal.GetDelegateForFunctionPointer<StateAndIdPointer>(new IntPtr(handle.ToInt64() + Offsets.luaL_checkany));
 
 		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
 		public delegate IntPtr checktype(IntPtr luaState, int idx, int type);
@@ -102,7 +102,7 @@ namespace HindenburgDll.Utils
 		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
 		public delegate IntPtr checklstring(IntPtr luaState, int idx, ref int size);
 		public checklstring luaL_checklstring = Marshal.GetDelegateForFunctionPointer<checklstring>(new IntPtr(handle.ToInt64() + Offsets.luaL_checklstring));
-		public yield luaL_checkinteger = Marshal.GetDelegateForFunctionPointer<yield>(new IntPtr(handle.ToInt64() + Offsets.luaL_checkinteger));
+		public type luaL_checkinteger = Marshal.GetDelegateForFunctionPointer<type>(new IntPtr(handle.ToInt64() + Offsets.luaL_checkinteger));
 		public FieldPointer checkudataC = Marshal.GetDelegateForFunctionPointer<FieldPointer>(new IntPtr(handle.ToInt64() + Offsets.luaL_checkudata));
 
 		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
@@ -141,6 +141,13 @@ namespace HindenburgDll.Utils
 			Marshal.Copy(bytes, 0, data, bytes.Length);
 			lua_pushlstring(luaState, data, bytes.Length);
 			Marshal.FreeCoTaskMem(data);
+		}
+
+		public string lua_tostring(IntPtr thread, int idx)
+		{
+			int size = 0;
+			IntPtr str = lua_tolstring(thread, idx, ref size);
+			return Marshal.PtrToStringUTF8(str, size);
 		}
 
 		public string lua_checkstring(IntPtr thread, int idx)

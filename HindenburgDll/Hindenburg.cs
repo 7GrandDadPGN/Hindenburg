@@ -27,6 +27,7 @@ namespace HindenburgDll
 		private FunctionHolder[] env = new FunctionHolder[] {
 			new Functions.Crypt(),
 			new Functions.Closures(),
+			new Functions.Debug(),
 			new Functions.Globals(),
 			new Functions.FileSystem(),
 			new Functions.Http()

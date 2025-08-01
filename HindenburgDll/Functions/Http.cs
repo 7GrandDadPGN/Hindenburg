@@ -8,7 +8,6 @@ namespace HindenburgDll.Functions
 {
 	internal class Http : FunctionHolder
 	{
-		//print(request({Url = "test", Method = "test1"}))
 		public static int request(IntPtr luaState)
 		{
 			api.luaL_checktype(luaState, 1, (int)LuaIApi.lua_Type.LUA_TTABLE);
@@ -32,35 +31,25 @@ namespace HindenburgDll.Functions
 				LuauPluginRaw.PushNil(luaState);
 				while (api.lua_next(luaState, -2) != 0)
 				{
-					string key = api.lua_checkstring(luaState, -2);
-					string value = api.lua_checkstring(luaState, -1);
-					LuauPluginRaw.PushString(luaState, value);
+					string key = api.lua_tostring(luaState, -2);
+					string value = api.lua_tostring(luaState, -1);
+					LuauPluginRaw.Pop(luaState, 1);
 					headers[key] = value;
 				}
 				LuauPluginRaw.Pop(luaState, 1);
 			}
 
-			/*LuauPluginRaw.Pop(luaState, -1);
-
-			LuauPluginRaw.NewTable(luaState);
-			foreach(var arg in headers)
-			{
-				LuauPluginRaw.PushString(luaState, arg.Value);
-				api.lua_setfield(luaState, -1, arg.Key);
-			}*/
-			return 0;
+			return 1;
 		}
 
 		public static int httpget(IntPtr luaState)
 		{
 			string url = api.lua_checkstring(luaState, 1);
-			HttpClientHandler handler = new()
+			HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, url);
+			HttpClient client = new HttpClient(new HttpClientHandler()
 			{
 				AutomaticDecompression = DecompressionMethods.All
-			};
-
-			HttpClient client = new(handler);
-			HttpRequestMessage request = new(HttpMethod.Get, url);
+			});
 
 			return api.YieldThread(luaState, async () =>
 			{

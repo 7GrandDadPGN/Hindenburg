@@ -23,6 +23,7 @@
 		public static int lua_setmetatable = 0x91450;
 		public static int lua_setsafeenv = 0x915b0;
 		public static int lua_settop = 0x916c0;
+		public static int lua_tolstring = 0x91930;
 		public static int lua_type = 0x91dc0;
 		public static int lua_xmove = 0x91eb0;
 		public static int lua_yield = 0x95200;

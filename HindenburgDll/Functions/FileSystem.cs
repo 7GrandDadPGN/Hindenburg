@@ -88,7 +88,7 @@ namespace HindenburgDll.Functions
 			}
 			else
 			{
-				api.luaL_argerrorL(luaState, 1, "Path does not exist");
+				api.luaL_argerrorL(luaState, 1, "invalid path");
 			}
 
 			return 1;
@@ -118,7 +118,7 @@ namespace HindenburgDll.Functions
 			}
 			else
 			{
-				api.luaL_argerrorL(luaState, 1, "Path does not exist");
+				api.luaL_argerrorL(luaState, 1, "invalid path");
 			}
 
 			return 1;
@@ -132,7 +132,7 @@ namespace HindenburgDll.Functions
 
 			if (!whitelistedExtentions.Contains(fileExtension))
 			{
-				api.luaL_argerrorL(luaState, 1, $"non whitelisted extension type {fileExtension}");
+				api.luaL_argerrorL(luaState, 1, $"invalid extension type {fileExtension}");
 			}
 
 			if (File.Exists(filePath))
@@ -145,7 +145,7 @@ namespace HindenburgDll.Functions
 			}
 			else
 			{
-				api.luaL_argerrorL(luaState, 1, "Path does not exist");
+				api.luaL_argerrorL(luaState, 1, "invalid path");
 			}
 
 			return 0;
@@ -159,7 +159,7 @@ namespace HindenburgDll.Functions
 
 			if (!whitelistedExtentions.Contains(fileExtension))
 			{
-				api.luaL_argerrorL(luaState, 1, $"non whitelisted extension type {fileExtension}");
+				api.luaL_argerrorL(luaState, 1, $"invalid extension type {fileExtension}");
 			}
 
 			File.WriteAllBytes(filePath, inputData);
@@ -172,19 +172,19 @@ namespace HindenburgDll.Functions
 
 			if (Directory.Exists(filePath))
 			{
-				FileInfo[] Files = new DirectoryInfo(filePath).GetFiles();
+				FileSystemInfo[] Files = new DirectoryInfo(filePath).GetFileSystemInfos();
 				LuauPluginRaw.NewTable(luaState);
 
 				for (int i = 0; i < Files.Length; i++)
 				{
-					FileInfo File = Files[i];
+					FileSystemInfo File = Files[i];
 					LuauPluginRaw.PushString(luaState, File.FullName.Substring(basePath.Length + 1));
 					api.lua_rawseti(luaState, -2, i);
 				}
 			}
 			else
 			{
-				api.luaL_argerrorL(luaState, 1, "Path does not exist");
+				api.luaL_argerrorL(luaState, 1, "invalid path");
 			}
 
 			return 1;

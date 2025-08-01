@@ -55,25 +55,28 @@ namespace HindenburgDll.Functions
 
 		public static int getscripts(IntPtr luaState)
 		{
-			List<string> alreadyDone = new List<string>();
-			GameObject[] list = Object.FindObjectsByType<GameObject>(FindObjectsSortMode.None);
+			bool coreScripts = api.luaL_optboolean(luaState, 1, false);
+			AirshipScript[] list = Object.FindObjectsByType<AirshipScript>(FindObjectsSortMode.None);
 			LuauPluginRaw.NewTable(luaState);
 
 			int i = 1;
-			foreach (GameObject obj in list)
+			foreach (AirshipScript obj in list)
 			{
-				AirshipComponent comp;
-
-				if (obj.TryGetComponent(out comp) && !alreadyDone.Contains(comp.scriptPath) && comp.context == LuauContext.Game && AirshipBehaviourRootV2.HasId(obj))
+				if (obj.m_path == null || obj.m_path == "main")
 				{
-					alreadyDone.Add(comp.scriptPath);
-					LuauCore.WritePropertyToThread(luaState, comp, comp.GetIl2CppType());
-					api.lua_rawseti(luaState, -2, i);
-					i++;
+					continue;
 				}
+
+				if (!coreScripts && obj.m_path.StartsWith("assets/airshippackages"))
+				{
+					continue;
+				}
+
+				LuauCore.WritePropertyToThread(luaState, obj, obj.GetIl2CppType());
+				api.lua_rawseti(luaState, -2, i);
+				i++;
 			}
 
-			alreadyDone.Clear();
 			return 1;
 		}
 
@@ -83,10 +86,10 @@ namespace HindenburgDll.Functions
 			UnityObjectStruct uStruct = Marshal.PtrToStructure<UnityObjectStruct>(instanceId);
 			Il2CppSystem.Object obj = ThreadDataManager.GetObjectReference(luaState, uStruct.objectId);
 
-			if (obj is AirshipComponent)
+			if (obj is AirshipScript)
 			{
-				AirshipComponent compObj = (AirshipComponent)obj;
-				api.lua_pushlstringB(luaState, compObj.script.m_bytes);
+				AirshipScript compObj = (AirshipScript)obj;
+				api.lua_pushlstringB(luaState, compObj.m_bytes);
 			}
 			else
 			{
