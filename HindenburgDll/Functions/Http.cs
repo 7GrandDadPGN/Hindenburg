@@ -59,15 +59,20 @@ namespace HindenburgDll.Functions
 
 			HttpClient client = new();
 			HttpRequestMessage request = new(methodMap[method], url);
+
 			if (body != null)
 			{
 				request.Content = new ByteArrayContent(body);
 			}
+
 			foreach (var header in headers)
 			{
-				if (header.Key.ToLower() == "content-type" && request.Content != null)
+				if (header.Key.ToLower() == "content-type")
 				{
-					request.Content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(header.Value);
+					if (request.Content != null)
+					{
+						request.Content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(header.Value);
+					}
 					continue;
 				}
 				request.Headers.Add(header.Key, header.Value); ;
