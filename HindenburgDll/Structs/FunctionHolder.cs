@@ -1,6 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 
-namespace HindenburgDll.Utils
+namespace HindenburgDll.Structs
 {
 	internal abstract class FunctionHolder
 	{
@@ -27,7 +27,7 @@ namespace HindenburgDll.Utils
 		public void Add(string bname, luaFuncC bfunc)
 		{
 			gcReg.Add(bfunc);
-			luaReg.Add(new luaL_Reg(bname, Marshal.GetFunctionPointerForDelegate<luaFuncC>(bfunc)));
+			luaReg.Add(new luaL_Reg(bname, Marshal.GetFunctionPointerForDelegate(bfunc)));
 		}
 	}
 }

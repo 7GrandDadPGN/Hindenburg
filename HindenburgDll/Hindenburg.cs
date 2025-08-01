@@ -15,6 +15,7 @@ using System.Text;
 using HarmonyLib;
 using Il2Cpp;
 using Il2CppLuau;
+using HindenburgDll.Structs;
 
 [assembly: MelonInfo(typeof(Hindenburg), "Hindenburg", "1.0.0", "7GrandDad")]
 namespace HindenburgDll

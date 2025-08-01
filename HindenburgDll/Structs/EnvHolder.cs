@@ -1,4 +1,4 @@
-﻿namespace HindenburgDll.Utils
+﻿namespace HindenburgDll.Structs
 {
 	public struct EnvHolder
 	{

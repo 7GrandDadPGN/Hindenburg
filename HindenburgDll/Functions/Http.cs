@@ -3,6 +3,7 @@ using HindenburgDll.Utils;
 using System.Net;
 using Il2Cpp;
 using System.Diagnostics;
+using HindenburgDll.Structs;
 
 namespace HindenburgDll.Functions
 {

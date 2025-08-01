@@ -7,6 +7,7 @@ using HindenburgDll.Utils;
 using UnityEngine;
 using Il2CppLuau;
 using Il2Cpp;
+using HindenburgDll.Structs;
 
 namespace HindenburgDll.Functions
 {
@@ -105,10 +106,10 @@ namespace HindenburgDll.Functions
 			UnityObjectStruct uStruct = Marshal.PtrToStructure<UnityObjectStruct>(instanceId);
 			Il2CppSystem.Object obj = ThreadDataManager.GetObjectReference(luaState, uStruct.objectId);
 
-			if (obj is AirshipComponent)
+			if (obj is AirshipScript)
 			{
-				AirshipComponent compObj = (AirshipComponent)obj;
-				byte[] hash = sha.ComputeHash(compObj.script.m_bytes);
+				AirshipScript compObj = (AirshipScript)obj;
+				byte[] hash = sha.ComputeHash(compObj.m_bytes);
 				LuauPluginRaw.PushString(luaState, BitConverter.ToString(hash).Replace("-", "").ToLower());
 			}
 			else
@@ -161,7 +162,7 @@ namespace HindenburgDll.Functions
 		public static int setrawmetatable(IntPtr luaState)
 		{
 			api.luaL_checkany(luaState, 1);
-			api.luaL_checktype(luaState, 1, (int)LuaIApi.lua_Type.LUA_TTABLE);
+			api.luaL_checktype(luaState, 2, (int)LuaIApi.lua_Type.LUA_TTABLE);
 			if (LuauPluginRaw.GetTop(luaState) != 2)
 			{
 				api.lua_pushvalue(luaState, 2);

@@ -7,6 +7,7 @@ using System.Text;
 using Il2CppLuau;
 using Il2Cpp;
 using UnityEngine.Playables;
+using HindenburgDll.Structs;
 
 namespace HindenburgDll.Utils
 {

@@ -6,7 +6,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace HindenburgDll.Utils
+namespace HindenburgDll.Structs
 {
 	public struct AwaitingTask
 	{

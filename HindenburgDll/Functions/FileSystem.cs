@@ -1,9 +1,9 @@
 ﻿using System.Runtime.InteropServices;
 using static HindenburgDll.Utils.CompileUtils;
 using static HindenburgDll.Utils.LuaIApi;
-using HindenburgDll.Utils;
 using Il2Cpp;
 using System.Text;
+using HindenburgDll.Structs;
 
 namespace HindenburgDll.Functions
 {

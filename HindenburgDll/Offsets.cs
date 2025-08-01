@@ -8,7 +8,10 @@
 
 		public static int luaAirship_require = 0x10610;
 
+		public static int wrap_tointeger = 0x20030;
+
 		public static int lua_iscfunction = 0x8ff00;
+		public static int luaA_pushobject = 0x8f440;
 		public static int lua_isnumber = 0x8ff70;
 		public static int lua_isstring = 0x90010;
 		public static int lua_getfield = 0x8fb70;
@@ -24,9 +27,11 @@
 		public static int lua_setsafeenv = 0x915b0;
 		public static int lua_settop = 0x916c0;
 		public static int lua_tolstring = 0x91930;
+		public static int lua_topointer = 0x91b20;
 		public static int lua_type = 0x91dc0;
 		public static int lua_xmove = 0x91eb0;
 		public static int lua_yield = 0x95200;
+		public static int lua_getinfo = 0x96120;
 
 		public static int luaL_argerrorL = 0x92500;
 		public static int luaL_checkany = 0x92680;
