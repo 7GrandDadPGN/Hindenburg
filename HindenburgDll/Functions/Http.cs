@@ -59,13 +59,18 @@ namespace HindenburgDll.Functions
 
 			HttpClient client = new();
 			HttpRequestMessage request = new(methodMap[method], url);
-			foreach(var header in headers)
-			{
-				request.Headers.Add(header.Key, header.Value);
-			}
 			if (body != null)
 			{
 				request.Content = new ByteArrayContent(body);
+			}
+			foreach (var header in headers)
+			{
+				if (header.Key.ToLower() == "content-type" && request.Content != null)
+				{
+					request.Content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(header.Value);
+					continue;
+				}
+				request.Headers.Add(header.Key, header.Value); ;
 			}
 
 			return api.YieldThread(luaState, async () =>
