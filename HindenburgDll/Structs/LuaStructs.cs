@@ -105,13 +105,11 @@ namespace HindenburgDll.Structs
 		public IntPtr cont;
 		public IntPtr debugname;
 		public IntPtr aboundary;
-		public IntPtr upvals;
 	}
 
 	public struct l_closure
 	{
 		public IntPtr p;
-		public IntPtr uprefs;
 	}
 
 	[StructLayout(LayoutKind.Explicit)]
@@ -138,6 +136,18 @@ namespace HindenburgDll.Structs
 		public IntPtr array;
 		public IntPtr node;
 		public IntPtr gclist;
+	}
+
+	public struct blank_closure
+	{
+		public common_header header;
+
+		public byte isC;
+		public byte nupvalues;
+		public byte stacksize;
+		public byte preload;
+		public IntPtr gcObject;
+		public IntPtr env;
 	}
 
 	public struct lua_closure

@@ -42,6 +42,7 @@ namespace HindenburgDll.Functions
 			{
 				{ "User-Agent", "Airship" }
 			};
+
 			api.lua_getfield(luaState, 1, "Headers");
 			if (!api.lua_isnoneornil(luaState, -1))
 			{

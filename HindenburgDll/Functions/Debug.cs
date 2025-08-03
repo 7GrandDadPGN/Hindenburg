@@ -15,8 +15,6 @@ namespace HindenburgDll.Functions
 	{
 		private static int getconstants(IntPtr luaState)
 		{
-			api.luaL_checkany(luaState, 1);
-
 			if (api.lua_type(luaState, 1) != (int)LuaIApi.lua_Type.LUA_TFUNCTION && !api.lua_isnumber(luaState, 1))
 			{
 				api.luaL_argerrorL(luaState, 1, "function or level expected");
@@ -66,11 +64,8 @@ namespace HindenburgDll.Functions
 
 			return 1;
 		}
-
 		private static int getconstant(IntPtr luaState)
 		{
-			api.luaL_checkany(luaState, 1);
-
 			if (api.lua_type(luaState, 1) != (int)LuaIApi.lua_Type.LUA_TFUNCTION && !api.lua_isnumber(luaState, 1))
 			{
 				api.luaL_argerrorL(luaState, 1, "function or level expected");
@@ -126,10 +121,103 @@ namespace HindenburgDll.Functions
 			return 1;
 		}
 
+		private static int getupvalues(IntPtr luaState)
+		{
+			api.lua_limittop(luaState, 2);
+
+			if (api.lua_type(luaState, 1) != (int)LuaIApi.lua_Type.LUA_TFUNCTION && !api.lua_isnumber(luaState, 1))
+			{
+				api.luaL_argerrorL(luaState, 1, "function or level expected");
+			}
+
+			if (api.lua_isnumber(luaState, 1))
+			{
+				IntPtr allocation = Marshal.AllocCoTaskMem(Marshal.SizeOf<lua_Debug>());
+				bool success = api.lua_getinfo(luaState, api.lua_tointeger(luaState, 1), "f", allocation);
+				Marshal.FreeCoTaskMem(allocation);
+
+				if (!success)
+				{
+					api.luaL_argerrorL(luaState, 1, "level out of range");
+				}
+			}
+			else
+			{
+				api.lua_pushvalue(luaState, 1);
+			}
+
+			if (api.lua_iscfunction(luaState, -1))
+			{
+				api.luaL_argerrorL(luaState, 1, "lua function expected");
+			}
+
+			IntPtr pointer = api.lua_topointer(luaState, -1);
+			lua_closure closure = Marshal.PtrToStructure<lua_closure>(pointer);
+			IntPtr upvalues = new IntPtr(pointer.ToInt64() + Marshal.SizeOf<blank_closure>() + (closure.isC != 0 ? Marshal.SizeOf<c_closure>() : Marshal.SizeOf<l_closure>()));
+			LuauPluginRaw.NewTable(luaState);
+
+			for (int i = 0; i < closure.nupvalues; i++)
+			{
+				IntPtr kPtr = new IntPtr(upvalues.ToInt64() + i * Marshal.SizeOf<TValue>());
+				api.luaA_pushobject(luaState, kPtr);
+				api.lua_rawseti(luaState, -2, i + 1);
+			}
+
+			return 1;
+		}
+
+		private static int getupvalue(IntPtr luaState)
+		{
+			api.lua_limittop(luaState, 2);
+
+			if (api.lua_type(luaState, 1) != (int)LuaIApi.lua_Type.LUA_TFUNCTION && !api.lua_isnumber(luaState, 1))
+			{
+				api.luaL_argerrorL(luaState, 1, "function or level expected");
+			}
+
+			int index = api.luaL_checkinteger(luaState, 2);
+			if (api.lua_isnumber(luaState, 1))
+			{
+				IntPtr allocation = Marshal.AllocCoTaskMem(Marshal.SizeOf<lua_Debug>());
+				bool success = api.lua_getinfo(luaState, api.lua_tointeger(luaState, 1), "f", allocation);
+				Marshal.FreeCoTaskMem(allocation);
+
+				if (!success)
+				{
+					api.luaL_argerrorL(luaState, 1, "level out of range");
+				}
+			}
+			else
+			{
+				api.lua_pushvalue(luaState, 1);
+			}
+
+			IntPtr pointer = api.lua_topointer(luaState, -1);
+			lua_closure closure = Marshal.PtrToStructure<lua_closure>(pointer);
+			IntPtr upvalues = new IntPtr(pointer.ToInt64() + Marshal.SizeOf<blank_closure>() + (closure.isC != 0 ? Marshal.SizeOf<c_closure>() : Marshal.SizeOf<l_closure>()));
+
+			if (index < 1)
+			{
+				api.luaL_argerrorL(luaState, 2, "upvalue index starts at 1");
+			}
+
+			if (index > closure.nupvalues)
+			{
+				api.luaL_argerrorL(luaState, 2, "upvalue index is out of range");
+			}
+
+			IntPtr kPtr = new IntPtr(upvalues.ToInt64() + (index - 1) * Marshal.SizeOf<TValue>());
+			api.luaA_pushobject(luaState, kPtr);
+
+			return 1;
+		}
+
 		public override void CreateDefinitions()
 		{
 			Add("getconstants", getconstants);
 			Add("getconstant", getconstant);
+			Add("getupvalues", getupvalues);
+			Add("getupvalue", getupvalue);
 			luaReg.Add(new luaL_Reg { name = IntPtr.Zero, func = IntPtr.Zero });
 		}
 
