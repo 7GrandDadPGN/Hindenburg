@@ -140,7 +140,8 @@ namespace HindenburgDll
 	{
 		private static void Prefix(NetworkPingMessage message)
 		{
-			message.localTime -= Hindenburg.pingDelay;
+			if (Hindenburg.pingDelay <= 0) return;
+			message.localTime -= (double)Hindenburg.pingDelay / 1000;
 		}
 	}
 
