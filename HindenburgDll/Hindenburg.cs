@@ -16,6 +16,9 @@ using HarmonyLib;
 using Il2Cpp;
 using Il2CppLuau;
 using HindenburgDll.Structs;
+using Il2CppMirror;
+using HarmonyLib.Tools;
+using UnityEngine;
 
 [assembly: MelonInfo(typeof(Hindenburg), "Hindenburg", "1.0.0", "7GrandDad")]
 namespace HindenburgDll
@@ -23,6 +26,7 @@ namespace HindenburgDll
 	public class Hindenburg : MelonMod
 	{
 		public static readonly List<AwaitingTask> awaitingTasks = new List<AwaitingTask>();
+		public static int pingDelay = 0;
 		private string autoExecutePath = "";
 		private StringBuilder builder = new StringBuilder();
 		private FunctionHolder[] env = new FunctionHolder[] {
@@ -73,6 +77,7 @@ namespace HindenburgDll
 						{
 							string code = builder.ToString();
 							builder.Clear();
+
 							if (envHolder.globalState != IntPtr.Zero)
 							{
 								LoggerInstance.Msg($"executed {code}");
@@ -127,6 +132,15 @@ namespace HindenburgDll
 			{
 				reloadAction?.Invoke();
 			}
+		}
+	}
+
+	[HarmonyPatch(typeof(NetworkTime), "OnClientPing", new Type[] { typeof(NetworkPingMessage) })]
+	public static class NetworkPatch
+	{
+		private static void Prefix(NetworkPingMessage message)
+		{
+			message.localTime -= Hindenburg.pingDelay;
 		}
 	}
 

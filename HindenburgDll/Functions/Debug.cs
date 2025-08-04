@@ -109,6 +109,11 @@ namespace HindenburgDll.Functions
 			IntPtr kPtr = new IntPtr(proto.k.ToInt64() + (index - 1) * Marshal.SizeOf<TValue>());
 			TValue k = Marshal.PtrToStructure<TValue>(kPtr);
 
+			if (api.iscollectable(k.tt))
+			{
+				api.luaC_threadbarrier(luaState);
+			}
+
 			if (k.tt == (int)LuaIApi.lua_Type.LUA_TFUNCTION)
 			{
 				LuauPluginRaw.PushNil(luaState);
@@ -158,8 +163,15 @@ namespace HindenburgDll.Functions
 
 			for (int i = 0; i < closure.nupvalues; i++)
 			{
-				IntPtr kPtr = new IntPtr(upvalues.ToInt64() + i * Marshal.SizeOf<TValue>());
-				api.luaA_pushobject(luaState, kPtr);
+				IntPtr upPtr = new IntPtr(upvalues.ToInt64() + i * Marshal.SizeOf<TValue>());
+				TValue up = Marshal.PtrToStructure<TValue>(upPtr);
+
+				if (api.iscollectable(up.tt))
+				{
+					api.luaC_threadbarrier(luaState);
+				}
+
+				api.luaA_pushobject(luaState, upPtr);
 				api.lua_rawseti(luaState, -2, i + 1);
 			}
 
@@ -206,8 +218,15 @@ namespace HindenburgDll.Functions
 				api.luaL_argerrorL(luaState, 2, "upvalue index is out of range");
 			}
 
-			IntPtr kPtr = new IntPtr(upvalues.ToInt64() + (index - 1) * Marshal.SizeOf<TValue>());
-			api.luaA_pushobject(luaState, kPtr);
+			IntPtr upPtr = new IntPtr(upvalues.ToInt64() + (index - 1) * Marshal.SizeOf<TValue>());
+			TValue up = Marshal.PtrToStructure<TValue>(upPtr);
+
+			if (api.iscollectable(up.tt))
+			{
+				api.luaC_threadbarrier(luaState);
+			}
+
+			api.luaA_pushobject(luaState, upPtr);
 
 			return 1;
 		}

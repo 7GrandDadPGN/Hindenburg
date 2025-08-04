@@ -79,6 +79,9 @@ namespace HindenburgDll.Utils
 		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
 		public delegate bool getinfo(IntPtr luaState, int idx, IntPtr str, IntPtr debug);
 
+		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+		public delegate IntPtr barrierback(IntPtr luaState, IntPtr luaStateGC, IntPtr gclist);
+
 		public StatePointer luaAirship_require = Marshal.GetDelegateForFunctionPointer<StatePointer>(new IntPtr(handle.ToInt64() + Offsets.luaAirship_require));
 		public StateAndIdBool lua_iscfunction = Marshal.GetDelegateForFunctionPointer<StateAndIdBool>(new IntPtr(handle.ToInt64() + Offsets.lua_iscfunction));
 		public luaerror luaA_pushobject = Marshal.GetDelegateForFunctionPointer<luaerror>(new IntPtr(handle.ToInt64() + Offsets.luaA_pushobject));
@@ -117,6 +120,8 @@ namespace HindenburgDll.Utils
 		public luaerror luaL_errorC = Marshal.GetDelegateForFunctionPointer<luaerror>(new IntPtr(handle.ToInt64() + Offsets.luaL_error));
 		public register luaL_register = Marshal.GetDelegateForFunctionPointer<register>(new IntPtr(handle.ToInt64() + Offsets.luaL_register));
 		public StatePointer luaL_sandboxthread = Marshal.GetDelegateForFunctionPointer<StatePointer>(new IntPtr(handle.ToInt64() + Offsets.luaL_sandboxthread));
+
+		public barrierback luaC_barrierback = Marshal.GetDelegateForFunctionPointer<barrierback>(new IntPtr(handle.ToInt64() + Offsets.luaC_barrierback));
 
 		public luauload luau_load = Marshal.GetDelegateForFunctionPointer<luauload>(new IntPtr(handle.ToInt64() + Offsets.luau_load));
 
@@ -193,6 +198,15 @@ namespace HindenburgDll.Utils
 			IntPtr str = lua_tolstring(thread, idx, ref size);
 			return Marshal.PtrToStringUTF8(str, size);
 		}
+
+		public void luaC_threadbarrier(IntPtr thread)
+		{
+			if ((Marshal.ReadByte(thread, 1) & 4) != 0) // marked bit in common header, 4 is the black bit
+			{
+				luaC_barrierback(thread, thread, new IntPtr(thread.ToInt64() + 13)); // gc list
+			}
+		}
+
 		public IntPtr luaL_argerrorL(IntPtr thread, int idx, string str)
 		{
 			IntPtr strPtr = Marshal.StringToCoTaskMemUTF8(str);
@@ -232,6 +246,11 @@ namespace HindenburgDll.Utils
 			IntPtr res = luaL_typeerror(thread, idx, strPtr);
 			Marshal.FreeCoTaskMem(strPtr);
 			return res;
+		}
+
+		public bool iscollectable(int type)
+		{
+			return type >= (int)lua_Type.LUA_TSTRING;
 		}
 
 		public int YieldThread(IntPtr luaState, Func<Task<Action>> callback)

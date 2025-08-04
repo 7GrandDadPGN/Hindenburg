@@ -20,6 +20,13 @@ namespace HindenburgDll.Functions
 			public int objectId;
 		}
 
+		public static int backtrack(IntPtr luaState)
+		{
+			int target = api.luaL_checkinteger(luaState, 1);
+			Hindenburg.pingDelay = target;
+			return 0;
+		}
+
 		public static int getgenv(IntPtr luaState)
 		{
 			api.lua_pushvalue(envHolderInst.exploitState, Offsets.LUA_GLOBALSINDEX);
@@ -155,7 +162,7 @@ namespace HindenburgDll.Functions
 		public static int setclipboard(IntPtr luaState)
 		{
 			string data = api.lua_checkstring(luaState, 1);
-			Clipboard.SetText(data);
+			Clipboard.SetDataObject(data);
 			return 0;
 		}
 
@@ -203,6 +210,7 @@ namespace HindenburgDll.Functions
 
 		public override void CreateDefinitions()
 		{
+			Add("backtrack", backtrack);
 			Add("base64encode", Crypt.base64encode);
 			Add("base64decode", Crypt.base64decode);
 			Add("getgenv", getgenv);

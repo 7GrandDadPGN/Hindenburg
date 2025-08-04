@@ -46,6 +46,8 @@
 		public static int luaL_typeerrorL = 0x93330;
 		public static int luaL_sandboxthread = 0x93670;
 
+		public static int luaC_barrierback = 0x9b450;
+
 		public static int luau_load = 0x972d0;
 	}
 }
