@@ -138,10 +138,15 @@ namespace HindenburgDll
 	[HarmonyPatch(typeof(NetworkTime), "OnClientPing", new Type[] { typeof(NetworkPingMessage) })]
 	public static class NetworkPatch
 	{
-		private static void Prefix(NetworkPingMessage message)
+		private static bool Prefix(NetworkPingMessage message)
 		{
-			if (Hindenburg.pingDelay <= 0) return;
-			message.localTime -= (double)Hindenburg.pingDelay / 1000;
+			if (Hindenburg.pingDelay <= 0) return true;
+			NetworkPongMessage msg = new NetworkPongMessage(
+				message.localTime - ((double)Hindenburg.pingDelay / 1000), 
+				0, 0
+			);
+			NetworkClient.Send(msg, 1);
+			return false;
 		}
 	}
 
@@ -155,6 +160,7 @@ namespace HindenburgDll
 				AwaitingTask awaitingTask = Hindenburg.awaitingTasks[i];
 				if (!awaitingTask.Task.IsCompleted) continue;
 
+				Debug.Log("ran task");
 				Hindenburg.awaitingTasks.RemoveAt(i);
 				ResumeAsyncTask(awaitingTask);
 				i--;

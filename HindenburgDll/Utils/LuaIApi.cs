@@ -91,6 +91,7 @@ namespace HindenburgDll.Utils
 		private FieldPointer setfield = Marshal.GetDelegateForFunctionPointer<FieldPointer>(new IntPtr(handle.ToInt64() + Offsets.lua_setfield));
 		public StateAndIdPointer lua_getmetatable = Marshal.GetDelegateForFunctionPointer<StateAndIdPointer>(new IntPtr(handle.ToInt64() + Offsets.lua_getmetatable));
 		public StateAndIdBool lua_getreadonly = Marshal.GetDelegateForFunctionPointer<StateAndIdBool>(new IntPtr(handle.ToInt64() + Offsets.lua_getreadonly));
+		public StateAndIdInteger lua_rawcheckstack = Marshal.GetDelegateForFunctionPointer<StateAndIdInteger>(new IntPtr(handle.ToInt64() + Offsets.lua_rawcheckstack));
 		public StackIndexPointer lua_rawseti = Marshal.GetDelegateForFunctionPointer<StackIndexPointer>(new IntPtr(handle.ToInt64() + Offsets.lua_rawseti));
 		public StringPointer lua_pushlstring = Marshal.GetDelegateForFunctionPointer<StringPointer>(new IntPtr(handle.ToInt64() + Offsets.lua_pushlstring));
 		public StateAndIdPointer lua_pushvalue = Marshal.GetDelegateForFunctionPointer<StateAndIdPointer>(new IntPtr(handle.ToInt64() + Offsets.lua_pushvalue));

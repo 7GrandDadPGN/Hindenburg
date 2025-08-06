@@ -21,7 +21,7 @@ namespace HindenburgDll.Structs
 		[FieldOffset(0)] public IntPtr p;
 		[FieldOffset(0)] public double n;
 		[FieldOffset(0)] public int b;
-		[FieldOffset(4)] public float v2;
+		[FieldOffset(0)] public float v2;
 	}
 
 	public struct TValue
@@ -52,6 +52,13 @@ namespace HindenburgDll.Structs
 		public IntPtr userdata;        // only valid in luau_callhook
 
 		public char ssbuf;
+	}
+
+	public struct UpVal
+	{
+		public common_header header;
+		public byte markedopen;
+		public IntPtr v;
 	}
 
 	public struct Proto

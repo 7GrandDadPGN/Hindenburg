@@ -21,6 +21,7 @@
 		public static int lua_next = 0x90370;
 		public static int lua_pushlstring = 0x90730;
 		public static int lua_pushvalue = 0x90920;
+		public static int lua_rawcheckstack = 0x90a30;
 		public static int lua_rawseti = 0x90f20;
 		public static int lua_setfield = 0x91370;
 		public static int lua_setmetatable = 0x91450;

@@ -166,6 +166,14 @@ namespace HindenburgDll.Functions
 				IntPtr upPtr = new IntPtr(upvalues.ToInt64() + i * Marshal.SizeOf<TValue>());
 				TValue up = Marshal.PtrToStructure<TValue>(upPtr);
 
+				if (up.tt == (int)LuaIApi.lua_Type.LUA_TUPVAL)
+				{
+					UpVal pUp = Marshal.PtrToStructure<UpVal>(up.value.gc);
+					up = Marshal.PtrToStructure<TValue>(pUp.v);
+					upPtr = pUp.v;
+				}
+
+				api.lua_rawcheckstack(luaState, 1);
 				if (api.iscollectable(up.tt))
 				{
 					api.luaC_threadbarrier(luaState);
@@ -221,6 +229,14 @@ namespace HindenburgDll.Functions
 			IntPtr upPtr = new IntPtr(upvalues.ToInt64() + (index - 1) * Marshal.SizeOf<TValue>());
 			TValue up = Marshal.PtrToStructure<TValue>(upPtr);
 
+			if (up.tt == (int)LuaIApi.lua_Type.LUA_TUPVAL)
+			{
+				UpVal pUp = Marshal.PtrToStructure<UpVal>(up.value.gc);
+				up = Marshal.PtrToStructure<TValue>(pUp.v);
+				upPtr = pUp.v;
+			}
+
+			api.lua_rawcheckstack(luaState, 1);
 			if (api.iscollectable(up.tt))
 			{
 				api.luaC_threadbarrier(luaState);
