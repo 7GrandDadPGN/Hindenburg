@@ -61,6 +61,50 @@ namespace HindenburgDll.Structs
 		public IntPtr v;
 	}
 
+	public struct GCOContext
+	{
+		public IntPtr state;
+		public bool accessTables;
+		public int itemsFound;
+	}
+
+	public struct stringtable
+	{
+		public IntPtr hash;
+		public uint nuse;
+		public int size;
+	}
+
+	public struct global_State
+	{
+		public stringtable strt;
+
+		public IntPtr frealloc;
+		public IntPtr ud;
+
+		public byte currentwhite;
+		public byte gcstate;
+
+		public IntPtr gray;
+		public IntPtr grayagain;
+		public IntPtr weak;
+	}
+
+	public struct State
+	{
+		public common_header header;
+		public byte status;
+
+		public byte activememcat;
+
+		public bool isactive;
+		public bool singlestep;
+
+		public IntPtr top;
+		public IntPtr baseId;
+		public IntPtr global;
+	}
+
 	public struct Proto
 	{
 		public common_header header;

@@ -160,7 +160,6 @@ namespace HindenburgDll
 				AwaitingTask awaitingTask = Hindenburg.awaitingTasks[i];
 				if (!awaitingTask.Task.IsCompleted) continue;
 
-				Debug.Log("ran task");
 				Hindenburg.awaitingTasks.RemoveAt(i);
 				ResumeAsyncTask(awaitingTask);
 				i--;

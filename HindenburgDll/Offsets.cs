@@ -1,4 +1,6 @@
-﻿namespace HindenburgDll
+﻿using Il2CppLuau;
+
+namespace HindenburgDll
 {
 	internal class Offsets
 	{
@@ -50,5 +52,7 @@
 		public static int luaC_barrierback = 0x9b450;
 
 		public static int luau_load = 0x972d0;
+
+		public static int luaM_visitgco = 0xaa2a0;
 	}
 }

@@ -82,6 +82,12 @@ namespace HindenburgDll.Utils
 		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
 		public delegate IntPtr barrierback(IntPtr luaState, IntPtr luaStateGC, IntPtr gclist);
 
+		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+		public delegate IntPtr visitgco(IntPtr luaState, IntPtr gcx, IntPtr callback);
+
+		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+		public delegate bool gcovoid(IntPtr gcx, IntPtr luaPage, IntPtr gcObj);
+
 		public StatePointer luaAirship_require = Marshal.GetDelegateForFunctionPointer<StatePointer>(new IntPtr(handle.ToInt64() + Offsets.luaAirship_require));
 		public StateAndIdBool lua_iscfunction = Marshal.GetDelegateForFunctionPointer<StateAndIdBool>(new IntPtr(handle.ToInt64() + Offsets.lua_iscfunction));
 		public luaerror luaA_pushobject = Marshal.GetDelegateForFunctionPointer<luaerror>(new IntPtr(handle.ToInt64() + Offsets.luaA_pushobject));
@@ -125,6 +131,8 @@ namespace HindenburgDll.Utils
 		public barrierback luaC_barrierback = Marshal.GetDelegateForFunctionPointer<barrierback>(new IntPtr(handle.ToInt64() + Offsets.luaC_barrierback));
 
 		public luauload luau_load = Marshal.GetDelegateForFunctionPointer<luauload>(new IntPtr(handle.ToInt64() + Offsets.luau_load));
+
+		public visitgco luaM_visitgco = Marshal.GetDelegateForFunctionPointer<visitgco>(new IntPtr(handle.ToInt64() + Offsets.luaM_visitgco));
 
 		public string lua_checkstring(IntPtr thread, int idx)
 		{

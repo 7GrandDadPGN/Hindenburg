@@ -1,13 +1,14 @@
-﻿using static HindenburgDll.Utils.CompileUtils;
+﻿using HindenburgDll.Structs;
+using HindenburgDll.Utils;
+using Il2Cpp;
+using Il2CppLuau;
+using Il2CppSystem.Windows.Forms;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
-using Object = UnityEngine.Object;
-using Il2CppSystem.Windows.Forms;
-using HindenburgDll.Utils;
 using UnityEngine;
-using Il2CppLuau;
-using Il2Cpp;
-using HindenburgDll.Structs;
+using static HindenburgDll.Utils.CompileUtils;
+using static HindenburgDll.Utils.LuaIApi;
+using Object = UnityEngine.Object;
 
 namespace HindenburgDll.Functions
 {
@@ -152,6 +153,50 @@ namespace HindenburgDll.Functions
 			return 1;
 		}
 
+		public static bool visitgc(IntPtr gcx, IntPtr luaPage, IntPtr gcObj)
+		{
+			GCOContext context = Marshal.PtrToStructure<GCOContext>(gcx);
+			byte tt = Marshal.ReadByte(gcObj);
+			
+			if (tt < (int)lua_Type.LUA_TPROTO && tt >= (int)lua_Type.LUA_TSTRING && (tt != (int)lua_Type.LUA_TTABLE || context.accessTables))
+			{
+				IntPtr topOffset = new IntPtr(context.state.ToInt64() + 16);
+				IntPtr topData = new IntPtr(Marshal.ReadIntPtr(topOffset).ToInt64() + LuauPluginRaw.GetTop(context.state) * 16);
+
+				LuauPluginRaw.PushNil(context.state);
+				Marshal.WriteIntPtr(topData, gcObj);
+				Marshal.WriteByte(new IntPtr(topData.ToInt64() + 12), tt);
+				Marshal.WriteInt32(new IntPtr(gcx.ToInt64() + 12), context.itemsFound + 1);
+				api.lua_rawseti(context.state, -2, context.itemsFound + 1);
+			}
+
+			return false;
+		}
+
+		public static int getgc(IntPtr luaState)
+		{
+			bool addTables = api.luaL_optboolean(luaState, 1, false);
+			api.lua_limittop(luaState, 1);
+			LuauPluginRaw.NewTable(luaState);
+
+			State luaData = Marshal.PtrToStructure<State>(luaState);
+			IntPtr visitgcPointer = Marshal.GetFunctionPointerForDelegate<gcovoid>(visitgc);
+			IntPtr gcPointer = new IntPtr(luaData.global.ToInt64() + Marshal.SizeOf<global_State>());
+			long old = Marshal.ReadInt64(gcPointer);
+
+			Marshal.WriteInt64(gcPointer, 0xffffffff);
+			GCOContext ctx = new GCOContext { state = luaState, accessTables = addTables, itemsFound = 0 };
+			IntPtr ctxPointer = Marshal.AllocCoTaskMem(Marshal.SizeOf<GCOContext>());
+			Marshal.StructureToPtr(ctx, ctxPointer, false);
+
+			api.luaM_visitgco(luaState, ctxPointer, visitgcPointer);
+
+			Marshal.WriteInt64(gcPointer, old);
+			Marshal.FreeCoTaskMem(ctxPointer);
+
+			return 1;
+		}
+
 		public static int run_protected(IntPtr luaState)
 		{
 			string code = api.lua_checkstring(luaState, 1);
@@ -214,6 +259,7 @@ namespace HindenburgDll.Functions
 			Add("base64encode", Crypt.base64encode);
 			Add("base64decode", Crypt.base64decode);
 			Add("getgenv", getgenv);
+			Add("getgc", getgc);
 			Add("getfpscap", getfpscap);
 			Add("getrenv", getrenv);
 			Add("getreg", getreg);
