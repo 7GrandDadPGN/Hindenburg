@@ -4,6 +4,7 @@ using static HindenburgDll.Utils.LuaIApi;
 using Il2Cpp;
 using System.Text;
 using HindenburgDll.Structs;
+using UnityEngine;
 
 namespace HindenburgDll.Functions
 {
@@ -30,6 +31,25 @@ namespace HindenburgDll.Functions
 			}
 
 			return inputPath;
+		}
+
+		public static int getcustomasset(IntPtr luaState)
+		{
+			string filePath = GetSafePath(luaState);
+
+			if (File.Exists(filePath))
+			{
+				var stream = new Il2CppSystem.IO.MemoryStream(File.ReadAllBytes(filePath));
+				AssetBundle bundle = AssetBundle.LoadFromStream(stream);
+				LuauCore.WritePropertyToThread(luaState, bundle, bundle.GetIl2CppType());
+				stream.Close();
+			}
+			else
+			{
+				api.luaL_argerrorL(luaState, 1, "invalid path");
+			}
+
+			return 1;
 		}
 
 		public static int isfolder(IntPtr luaState)
@@ -192,6 +212,7 @@ namespace HindenburgDll.Functions
 
 		public override void CreateDefinitions()
 		{
+			Add("getcustomasset", getcustomasset);
 			Add("isfolder", isfolder);
 			Add("makefolder", makefolder);
 			Add("delfolder", delfolder);
