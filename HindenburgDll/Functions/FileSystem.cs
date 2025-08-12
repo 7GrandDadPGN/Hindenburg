@@ -1,10 +1,17 @@
-﻿using System.Runtime.InteropServices;
+﻿using HindenburgDll.Structs;
+using Il2Cpp;
+using Il2CppLuau;
+using Il2CppSystem.IO;
+using System.Runtime.InteropServices;
+using System.Text;
+using UnityEngine;
 using static HindenburgDll.Utils.CompileUtils;
 using static HindenburgDll.Utils.LuaIApi;
-using Il2Cpp;
-using System.Text;
-using HindenburgDll.Structs;
-using UnityEngine;
+using Directory = System.IO.Directory;
+using DirectoryInfo = System.IO.DirectoryInfo;
+using File = System.IO.File;
+using FileSystemInfo = System.IO.FileSystemInfo;
+using Path = System.IO.Path;
 
 namespace HindenburgDll.Functions
 {
@@ -20,6 +27,12 @@ namespace HindenburgDll.Functions
 			".mp4", ".webm", ".mov", ""
 		};
 
+		private struct UnityObjectStruct
+		{
+			public int context;
+			public int objectId;
+		}
+
 		private static string GetSafePath(IntPtr luaState)
 		{
 			string destPath = api.lua_checkstring(luaState, 1); // error on invalid type (in this case string)
@@ -31,25 +44,6 @@ namespace HindenburgDll.Functions
 			}
 
 			return inputPath;
-		}
-
-		public static int getcustomasset(IntPtr luaState)
-		{
-			string filePath = GetSafePath(luaState);
-
-			if (File.Exists(filePath))
-			{
-				var stream = new Il2CppSystem.IO.MemoryStream(File.ReadAllBytes(filePath));
-				AssetBundle bundle = AssetBundle.LoadFromStream(stream);
-				LuauCore.WritePropertyToThread(luaState, bundle, bundle.GetIl2CppType());
-				stream.Close();
-			}
-			else
-			{
-				api.luaL_argerrorL(luaState, 1, "invalid path");
-			}
-
-			return 1;
 		}
 
 		public static int isfolder(IntPtr luaState)
@@ -210,9 +204,75 @@ namespace HindenburgDll.Functions
 			return 1;
 		}
 
+		public static int loadbundle(IntPtr luaState)
+		{
+			string filePath = GetSafePath(luaState);
+			string bundleName = api.lua_tostring(luaState, 2);
+
+			foreach (AssetBundle bund in AssetBundle.GetAllLoadedAssetBundles().ToArray())
+			{
+				if (bund.name == bundleName)
+				{
+					LuauCore.WritePropertyToThread(luaState, bund, bund.GetIl2CppType());
+					return 1;
+				}
+			}
+
+			if (File.Exists(filePath))
+			{
+				var stream = new Il2CppSystem.IO.MemoryStream(File.ReadAllBytes(filePath));
+				AssetBundle bundle = AssetBundle.LoadFromStream(stream);
+				LuauCore.WritePropertyToThread(luaState, bundle, bundle.GetIl2CppType());
+				stream.Close();
+			}
+			else
+			{
+				api.luaL_argerrorL(luaState, 1, "invalid path");
+			}
+
+			return 1;
+		}
+
+		public static int getasset(IntPtr luaState)
+		{
+			string fileName = api.lua_tostring(luaState, 1);
+			IntPtr instanceId = api.luaL_checkudata(luaState, 2, "UnityObject");
+			UnityObjectStruct uStruct = Marshal.PtrToStructure<UnityObjectStruct>(instanceId);
+			Il2CppSystem.Object obj = ThreadDataManager.GetObjectReference(luaState, uStruct.objectId);
+			bool isSprite = api.luaL_optboolean(luaState, 3, false);
+
+			if (obj is AssetBundle)
+			{
+				AssetBundle bundle = (AssetBundle)obj;
+				try
+				{
+					UnityEngine.Object returned;
+					if (isSprite)
+					{
+						returned = bundle.LoadAsset<Sprite>(fileName);
+					}
+					else
+					{
+						returned = bundle.LoadAsset<UnityEngine.Object>(fileName);
+					}
+
+					LuauCore.WritePropertyToThread(luaState, returned, returned.GetIl2CppType());
+				}
+				catch
+				{
+					api.luaL_argerrorL(luaState, 1, "unable to load asset");
+				}
+			}
+			else
+			{
+				LuauPluginRaw.PushNil(luaState);
+			}
+
+			return 1;
+		}
+
 		public override void CreateDefinitions()
 		{
-			Add("getcustomasset", getcustomasset);
 			Add("isfolder", isfolder);
 			Add("makefolder", makefolder);
 			Add("delfolder", delfolder);
@@ -222,6 +282,8 @@ namespace HindenburgDll.Functions
 			Add("appendfile", appendfile);
 			Add("writefile", writefile);
 			Add("listfiles", listfiles);
+			Add("loadbundle", loadbundle);
+			Add("getasset", getasset);
 			luaReg.Add(new luaL_Reg { name = IntPtr.Zero, func = IntPtr.Zero });
 		}
 
