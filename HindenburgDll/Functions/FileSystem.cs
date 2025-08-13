@@ -180,6 +180,18 @@ namespace HindenburgDll.Functions
 			return 0;
 		}
 
+		public static int delfile(IntPtr luaState)
+		{
+			string filePath = GetSafePath(luaState);
+
+			if (File.Exists(filePath))
+			{
+				File.Delete(filePath);
+			}
+
+			return 1;
+		}
+
 		public static int listfiles(IntPtr luaState)
 		{
 			string filePath = GetSafePath(luaState);
@@ -281,6 +293,7 @@ namespace HindenburgDll.Functions
 			Add("loadfile", loadfile);
 			Add("appendfile", appendfile);
 			Add("writefile", writefile);
+			Add("delfile", delfile);
 			Add("listfiles", listfiles);
 			Add("loadbundle", loadbundle);
 			Add("getasset", getasset);
