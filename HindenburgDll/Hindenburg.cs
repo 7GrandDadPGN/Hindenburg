@@ -84,11 +84,12 @@ namespace HindenburgDll
 				ReloadHandlers();
 			}
 
-			if (sceneName == "MainMenu")
+			if (sceneName == "MainMenu" && buildIndex == 0)
 			{
 				teleportQueue.Clear();
 			}
 		}
+
 		private void HandleTeleport()
 		{
 			if (autoExecutePath != "")
