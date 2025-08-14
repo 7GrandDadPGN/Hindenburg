@@ -13,7 +13,7 @@ namespace HindenburgDll.Utils
 	static class CompileUtils
 	{
 		public static LuaIApi api = new LuaIApi();
-		public static EnvHolder envHolderInst;
+		public static EnvHolder envHolder;
 		public struct CompilationResult
 		{
 			public IntPtr Data;
@@ -48,7 +48,7 @@ namespace HindenburgDll.Utils
 			return compilationResult;
 		}
 
-		public static EnvHolder CreateHolder(FunctionHolder[] env)
+		public static void CreateHolder(FunctionHolder[] env)
 		{
 			GameObject obj = new GameObject(RandomString(8));
 			GameObject objCore = new GameObject(RandomString(8));
@@ -73,7 +73,7 @@ namespace HindenburgDll.Utils
 				int top = LuauPluginRaw.GetTop(exploitThread);
 				foreach (FunctionHolder holder in env)
 				{
-					FunctionHolder.luaL_Reg[] funcs = holder.luaReg.ToArray();
+					luaL_Reg[] funcs = holder.luaReg.ToArray();
 
 					if (!holder.PushToGlobal())
 					{
@@ -91,36 +91,47 @@ namespace HindenburgDll.Utils
 				api.lua_settop(exploitThread, top);
 			}
 
-			return new EnvHolder
+			envHolder = new EnvHolder
 			{
 				globalState = mainThread,
 				coreState = coreThread,
 				exploitState = exploitThread
 			};
+
+			ExecuteScript(@"
+				setreadonly(debug, false)
+				for i, v in getrenv().debug do 
+					debug[i] = v
+				end
+				setreadonly(debug, true)
+			", false);
 		}
 
-		public static void ExecuteScript(string code, EnvHolder holder, bool core)
+		public static void ExecuteScript(string code, bool core)
 		{
-			string chunkName = RandomString(8);
-			CompilationResult data = CompileScriptData(code, chunkName);
-
-			if (data.Compiled)
+			if (envHolder.globalState != IntPtr.Zero)
 			{
-				IntPtr chunkPointer = Marshal.StringToCoTaskMemUTF8(chunkName);
-				IntPtr executeThread = api.lua_newthread(core ? holder.coreState : holder.exploitState);
-				LuauPluginRaw.Pop(core ? holder.coreState : holder.exploitState, 1);
-				api.luaL_sandboxthread(executeThread);
+				string chunkName = RandomString(8);
+				CompilationResult data = CompileScriptData(code, chunkName);
 
-				if (api.luau_load(executeThread, chunkPointer, data.Data, (int)data.DataSize, 0) == IntPtr.Zero)
+				if (data.Compiled)
 				{
-					LuauScript.ExecuteScript(executeThread);
-				}
+					IntPtr chunkPointer = Marshal.StringToCoTaskMemUTF8(chunkName);
+					IntPtr executeThread = api.lua_newthread(core ? envHolder.coreState : envHolder.exploitState);
+					LuauPluginRaw.Pop(core ? envHolder.coreState : envHolder.exploitState, 1);
+					api.luaL_sandboxthread(executeThread);
 
-				Marshal.FreeCoTaskMem(chunkPointer);
-			}
-			else
-			{
-				Debug.LogWarning(Marshal.PtrToStringUTF8(data.Data, (int)data.DataSize));
+					if (api.luau_load(executeThread, chunkPointer, data.Data, (int)data.DataSize, 0) == IntPtr.Zero)
+					{
+						LuauScript.ExecuteScript(executeThread);
+					}
+
+					Marshal.FreeCoTaskMem(chunkPointer);
+				}
+				else
+				{
+					Debug.LogWarning(Marshal.PtrToStringUTF8(data.Data, (int)data.DataSize));
+				}
 			}
 		}
 

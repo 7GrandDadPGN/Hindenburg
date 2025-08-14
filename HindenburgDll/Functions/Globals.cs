@@ -1,4 +1,5 @@
-﻿using HindenburgDll.Structs;
+﻿using HindenburgDll.Patches;
+using HindenburgDll.Structs;
 using HindenburgDll.Utils;
 using Il2Cpp;
 using Il2CppLuau;
@@ -25,16 +26,16 @@ namespace HindenburgDll.Functions
 		public static int backtrack(IntPtr luaState)
 		{
 			int target = api.luaL_checkinteger(luaState, 1);
-			Hindenburg.pingDelay = target;
+			NetworkTimePatch.pingDelay = target;
 			return 0;
 		}
 
 		public static int getgenv(IntPtr luaState)
 		{
-			api.lua_pushvalue(envHolderInst.exploitState, Offsets.LUA_GLOBALSINDEX);
-			if (luaState != envHolderInst.exploitState)
+			api.lua_pushvalue(envHolder.exploitState, Offsets.LUA_GLOBALSINDEX);
+			if (luaState != envHolder.exploitState)
 			{
-				api.lua_xmove(envHolderInst.exploitState, luaState, 1);
+				api.lua_xmove(envHolder.exploitState, luaState, 1);
 			}
 
 			return 1;
@@ -42,8 +43,8 @@ namespace HindenburgDll.Functions
 
 		public static int getrenv(IntPtr luaState)
 		{
-			api.lua_pushvalue(envHolderInst.globalState, Offsets.LUA_GLOBALSINDEX);
-			api.lua_xmove(envHolderInst.globalState, luaState, 1);
+			api.lua_pushvalue(envHolder.globalState, Offsets.LUA_GLOBALSINDEX);
+			api.lua_xmove(envHolder.globalState, luaState, 1);
 			return 1;
 		}
 
@@ -201,7 +202,7 @@ namespace HindenburgDll.Functions
 		public static int run_protected(IntPtr luaState)
 		{
 			string code = api.lua_checkstring(luaState, 1);
-			ExecuteScript(code, envHolderInst, true);
+			ExecuteScript(code, true);
 			return 0;
 		}
 
@@ -250,7 +251,7 @@ namespace HindenburgDll.Functions
 		public static int identifyexecutor(IntPtr luaState)
 		{
 			LuauPluginRaw.PushString(luaState, "Hindenburg");
-			LuauPluginRaw.PushString(luaState, "v1.0.0");
+			LuauPluginRaw.PushString(luaState, "v1.0.1");
 			return 2;
 		}
 
@@ -276,7 +277,6 @@ namespace HindenburgDll.Functions
 			Add("setfpscap", setfpscap);
 			Add("isreadonly", isreadonly);
 			Add("identifyexecutor", identifyexecutor);
-			luaReg.Add(new luaL_Reg { name = IntPtr.Zero, func = IntPtr.Zero });
 		}
 
 		public override string LibraryName()

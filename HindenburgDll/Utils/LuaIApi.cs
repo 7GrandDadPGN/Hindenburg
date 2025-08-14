@@ -2,6 +2,7 @@
 using HindenburgDll.Structs;
 using Il2Cpp;
 using Il2CppLuau;
+using System;
 using System.Runtime.InteropServices;
 
 namespace HindenburgDll.Utils
@@ -73,7 +74,7 @@ namespace HindenburgDll.Utils
 		public delegate IntPtr luaerror(IntPtr luaState, IntPtr str);
 
 		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-		public delegate IntPtr register(IntPtr luaState, IntPtr libName, FunctionHolder.luaL_Reg[] luaReg);
+		public delegate IntPtr register(IntPtr luaState, IntPtr libName, luaL_Reg[] luaReg);
 
 		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
 		public delegate IntPtr luauload(IntPtr luaState, IntPtr chunkName, IntPtr bytecode, int bytecodeSize, int native);
@@ -90,50 +91,55 @@ namespace HindenburgDll.Utils
 		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
 		public delegate bool gcovoid(IntPtr gcx, IntPtr luaPage, IntPtr gcObj);
 
-		public StateAndIdBool lua_iscfunction = Marshal.GetDelegateForFunctionPointer<StateAndIdBool>(new IntPtr(handle.ToInt64() + Offsets.lua_iscfunction));
-		public luaerror luaA_pushobject = Marshal.GetDelegateForFunctionPointer<luaerror>(new IntPtr(handle.ToInt64() + Offsets.luaA_pushobject));
-		public StateAndIdBool lua_isnumber = Marshal.GetDelegateForFunctionPointer<StateAndIdBool>(new IntPtr(handle.ToInt64() + Offsets.lua_isnumber));
-		public StateAndIdBool lua_isstring = Marshal.GetDelegateForFunctionPointer<StateAndIdBool>(new IntPtr(handle.ToInt64() + Offsets.lua_isstring));
-		private FieldPointer getfield = Marshal.GetDelegateForFunctionPointer<FieldPointer>(new IntPtr(handle.ToInt64() + Offsets.lua_getfield));
-		private FieldPointer setfield = Marshal.GetDelegateForFunctionPointer<FieldPointer>(new IntPtr(handle.ToInt64() + Offsets.lua_setfield));
-		public StateAndIdPointer lua_getmetatable = Marshal.GetDelegateForFunctionPointer<StateAndIdPointer>(new IntPtr(handle.ToInt64() + Offsets.lua_getmetatable));
-		public StateAndIdBool lua_getreadonly = Marshal.GetDelegateForFunctionPointer<StateAndIdBool>(new IntPtr(handle.ToInt64() + Offsets.lua_getreadonly));
-		public StateAndIdInteger lua_rawcheckstack = Marshal.GetDelegateForFunctionPointer<StateAndIdInteger>(new IntPtr(handle.ToInt64() + Offsets.lua_rawcheckstack));
-		public StackIndexPointer lua_rawseti = Marshal.GetDelegateForFunctionPointer<StackIndexPointer>(new IntPtr(handle.ToInt64() + Offsets.lua_rawseti));
-		public StringPointer lua_pushlstring = Marshal.GetDelegateForFunctionPointer<StringPointer>(new IntPtr(handle.ToInt64() + Offsets.lua_pushlstring));
-		public StateAndIdPointer lua_pushvalue = Marshal.GetDelegateForFunctionPointer<StateAndIdPointer>(new IntPtr(handle.ToInt64() + Offsets.lua_pushvalue));
-		public StatePointer lua_newthread = Marshal.GetDelegateForFunctionPointer<StatePointer>(new IntPtr(handle.ToInt64() + Offsets.lua_newthread));
-		public StateAndIdInteger lua_next = Marshal.GetDelegateForFunctionPointer<StateAndIdInteger>(new IntPtr(handle.ToInt64() + Offsets.lua_next));
-		public StateAndIdPointer lua_setmetatable = Marshal.GetDelegateForFunctionPointer<StateAndIdPointer>(new IntPtr(handle.ToInt64() + Offsets.lua_setmetatable));
+		public static TDelegate GetFunction<TDelegate>(int offset)
+		{
+			return Marshal.GetDelegateForFunctionPointer<TDelegate>(new IntPtr(handle.ToInt64() + offset));
+		}
 
-		public setsafeenv lua_setsafeenv = Marshal.GetDelegateForFunctionPointer<setsafeenv>(new IntPtr(handle.ToInt64() + Offsets.lua_setsafeenv));
-		public StateAndIdPointer lua_settop = Marshal.GetDelegateForFunctionPointer<StateAndIdPointer>(new IntPtr(handle.ToInt64() + Offsets.lua_settop));
-		public StateAndIdInteger lua_tointeger = Marshal.GetDelegateForFunctionPointer<StateAndIdInteger>(new IntPtr(handle.ToInt64() + Offsets.wrap_tointeger));
-		public StringReturn lua_tolstring = Marshal.GetDelegateForFunctionPointer<StringReturn>(new IntPtr(handle.ToInt64() + Offsets.lua_tolstring));
-		public StateAndIdPointer lua_topointer = Marshal.GetDelegateForFunctionPointer<StateAndIdPointer>(new IntPtr(handle.ToInt64() + Offsets.lua_topointer));
-		public StateAndIdInteger lua_type = Marshal.GetDelegateForFunctionPointer<StateAndIdInteger>(new IntPtr(handle.ToInt64() + Offsets.lua_type));
-		public xmove lua_xmove = Marshal.GetDelegateForFunctionPointer<xmove>(new IntPtr(handle.ToInt64() + Offsets.lua_xmove));
-		public StateAndIdInteger lua_yield = Marshal.GetDelegateForFunctionPointer<StateAndIdInteger>(new IntPtr(handle.ToInt64() + Offsets.lua_yield));
-		public getinfo lua_getinfoC = Marshal.GetDelegateForFunctionPointer<getinfo>(new IntPtr(handle.ToInt64() + Offsets.lua_getinfo));
+		public StateAndIdBool lua_iscfunction = GetFunction<StateAndIdBool>(Offsets.lua_iscfunction);
+		public luaerror luaA_pushobject = GetFunction<luaerror>(Offsets.luaA_pushobject);
+		public StateAndIdBool lua_isnumber = GetFunction<StateAndIdBool>(Offsets.lua_isnumber);
+		public StateAndIdBool lua_isstring = GetFunction<StateAndIdBool>(Offsets.lua_isstring);
+		private FieldPointer getfield = GetFunction<FieldPointer>(Offsets.lua_getfield);
+		private FieldPointer setfield = GetFunction<FieldPointer>(Offsets.lua_setfield);
+		public StateAndIdPointer lua_getmetatable = GetFunction<StateAndIdPointer>(Offsets.lua_getmetatable);
+		public StateAndIdBool lua_getreadonly = GetFunction<StateAndIdBool>(Offsets.lua_getreadonly);
+		public StateAndIdInteger lua_rawcheckstack = GetFunction<StateAndIdInteger>(Offsets.lua_rawcheckstack);
+		public StackIndexPointer lua_rawseti = GetFunction<StackIndexPointer>(Offsets.lua_rawseti);
+		public StringPointer lua_pushlstring = GetFunction<StringPointer>(Offsets.lua_pushlstring);
+		public StateAndIdPointer lua_pushvalue = GetFunction<StateAndIdPointer>(Offsets.lua_pushvalue);
+		public StatePointer lua_newthread = GetFunction<StatePointer>(Offsets.lua_newthread);
+		public StateAndIdInteger lua_next = GetFunction<StateAndIdInteger>(Offsets.lua_next);
+		public StateAndIdPointer lua_setmetatable = GetFunction<StateAndIdPointer>(Offsets.lua_setmetatable);
 
-		public FieldPointer luaL_argerror = Marshal.GetDelegateForFunctionPointer<FieldPointer>(new IntPtr(handle.ToInt64() + Offsets.luaL_argerrorL));
-		public FieldPointer luaL_typeerror = Marshal.GetDelegateForFunctionPointer<FieldPointer>(new IntPtr(handle.ToInt64() + Offsets.luaL_typeerrorL));
-		public StateAndIdPointer luaL_checkany = Marshal.GetDelegateForFunctionPointer<StateAndIdPointer>(new IntPtr(handle.ToInt64() + Offsets.luaL_checkany));
-		public StackIndexPointer luaL_checktype = Marshal.GetDelegateForFunctionPointer<StackIndexPointer>(new IntPtr(handle.ToInt64() + Offsets.luaL_checktype));
-		public StateAndIdBool luaL_checkboolean = Marshal.GetDelegateForFunctionPointer<StateAndIdBool>(new IntPtr(handle.ToInt64() + Offsets.luaL_checkboolean));
-		public StringReturn luaL_checklstring = Marshal.GetDelegateForFunctionPointer<StringReturn>(new IntPtr(handle.ToInt64() + Offsets.luaL_checklstring));
-		public StateAndIdInteger luaL_checkinteger = Marshal.GetDelegateForFunctionPointer<StateAndIdInteger>(new IntPtr(handle.ToInt64() + Offsets.luaL_checkinteger));
-		public FieldPointer luaL_checkudataC = Marshal.GetDelegateForFunctionPointer<FieldPointer>(new IntPtr(handle.ToInt64() + Offsets.luaL_checkudata));
+		public setsafeenv lua_setsafeenv = GetFunction<setsafeenv>(Offsets.lua_setsafeenv);
+		public StateAndIdPointer lua_settop = GetFunction<StateAndIdPointer>(Offsets.lua_settop);
+		public StateAndIdInteger lua_tointeger = GetFunction<StateAndIdInteger>(Offsets.wrap_tointeger);
+		public StringReturn lua_tolstring = GetFunction<StringReturn>(Offsets.lua_tolstring);
+		public StateAndIdPointer lua_topointer = GetFunction<StateAndIdPointer>(Offsets.lua_topointer);
+		public StateAndIdInteger lua_type = GetFunction<StateAndIdInteger>(Offsets.lua_type);
+		public xmove lua_xmove = GetFunction<xmove>(Offsets.lua_xmove);
+		public StateAndIdInteger lua_yield = GetFunction<StateAndIdInteger>(Offsets.lua_yield);
+		public getinfo lua_getinfoC = GetFunction<getinfo>(Offsets.lua_getinfo);
 
-		public luaerror luaL_errorC = Marshal.GetDelegateForFunctionPointer<luaerror>(new IntPtr(handle.ToInt64() + Offsets.luaL_errorL));
-		public register luaL_register = Marshal.GetDelegateForFunctionPointer<register>(new IntPtr(handle.ToInt64() + Offsets.luaL_register));
-		public StatePointer luaL_sandboxthread = Marshal.GetDelegateForFunctionPointer<StatePointer>(new IntPtr(handle.ToInt64() + Offsets.luaL_sandboxthread));
+		public FieldPointer luaL_argerror = GetFunction<FieldPointer>(Offsets.luaL_argerrorL);
+		public FieldPointer luaL_typeerror = GetFunction<FieldPointer>(Offsets.luaL_typeerrorL);
+		public StateAndIdPointer luaL_checkany = GetFunction<StateAndIdPointer>(Offsets.luaL_checkany);
+		public StackIndexPointer luaL_checktype = GetFunction<StackIndexPointer>(Offsets.luaL_checktype);
+		public StateAndIdBool luaL_checkboolean = GetFunction<StateAndIdBool>(Offsets.luaL_checkboolean);
+		public StringReturn luaL_checklstring = GetFunction<StringReturn>(Offsets.luaL_checklstring);
+		public StateAndIdInteger luaL_checkinteger = GetFunction<StateAndIdInteger>(Offsets.luaL_checkinteger);
+		public FieldPointer luaL_checkudataC = GetFunction<FieldPointer>(Offsets.luaL_checkudata);
 
-		public barrierback luaC_barrierback = Marshal.GetDelegateForFunctionPointer<barrierback>(new IntPtr(handle.ToInt64() + Offsets.luaC_barrierback));
+		public luaerror luaL_errorC = GetFunction<luaerror>(Offsets.luaL_errorL);
+		public register luaL_register = GetFunction<register>(Offsets.luaL_register);
+		public StatePointer luaL_sandboxthread = GetFunction<StatePointer>(Offsets.luaL_sandboxthread);
 
-		public luauload luau_load = Marshal.GetDelegateForFunctionPointer<luauload>(new IntPtr(handle.ToInt64() + Offsets.luau_load));
+		public barrierback luaC_barrierback = GetFunction<barrierback>(Offsets.luaC_barrierback);
 
-		public visitgco luaM_visitgco = Marshal.GetDelegateForFunctionPointer<visitgco>(new IntPtr(handle.ToInt64() + Offsets.luaM_visitgco));
+		public luauload luau_load = GetFunction<luauload>(Offsets.luau_load);
+
+		public visitgco luaM_visitgco = GetFunction<visitgco>(Offsets.luaM_visitgco);
 
 		public string lua_checkstring(IntPtr thread, int idx)
 		{

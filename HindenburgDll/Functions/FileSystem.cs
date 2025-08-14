@@ -38,7 +38,7 @@ namespace HindenburgDll.Functions
 
 			if (!inputPath.StartsWith(basePath))
 			{
-				api.luaL_argerrorL(luaState, 1, "Invalid path");
+				api.luaL_argerrorL(luaState, 1, "invalid path");
 			}
 
 			return inputPath;
@@ -77,7 +77,7 @@ namespace HindenburgDll.Functions
 			}
 			else
 			{
-				api.luaL_error(luaState, "Cannot delete workspace folder");
+				api.luaL_error(luaState, "attempted to delete workspace folder");
 			}
 
 			return 0;
@@ -295,7 +295,6 @@ namespace HindenburgDll.Functions
 			Add("listfiles", listfiles);
 			Add("loadbundle", loadbundle);
 			Add("getasset", getasset);
-			luaReg.Add(new luaL_Reg { name = IntPtr.Zero, func = IntPtr.Zero });
 		}
 
 		public override string LibraryName()

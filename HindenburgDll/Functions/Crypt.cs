@@ -35,7 +35,6 @@ namespace HindenburgDll.Functions
 		{
 			Add("base64encode", base64encode);
 			Add("base64decode", base64decode);
-			luaReg.Add(new luaL_Reg { name = IntPtr.Zero, func = IntPtr.Zero });
 		}
 
 		public override string LibraryName()

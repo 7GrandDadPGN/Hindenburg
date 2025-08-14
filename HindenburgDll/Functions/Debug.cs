@@ -248,7 +248,6 @@ namespace HindenburgDll.Functions
 			Add("getconstant", getconstant);
 			Add("getupvalues", getupvalues);
 			Add("getupvalue", getupvalue);
-			luaReg.Add(new luaL_Reg { name = IntPtr.Zero, func = IntPtr.Zero });
 		}
 
 		public override string LibraryName()

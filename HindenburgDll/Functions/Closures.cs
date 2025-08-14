@@ -50,7 +50,6 @@ namespace HindenburgDll.Functions
 			Add("loadstring", loadstring);
 			Add("iscclosure", iscclosure);
 			Add("islclosure", islclosure);
-			luaReg.Add(new luaL_Reg { name = IntPtr.Zero, func = IntPtr.Zero });
 		}
 
 		public override string LibraryName()

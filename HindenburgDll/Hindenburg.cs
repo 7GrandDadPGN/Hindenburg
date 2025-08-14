@@ -1,11 +1,10 @@
 ﻿/*
  * This project is skidded from https://github.com/SecondNewtonLaw/RbxStu-V3/ just to get a simple executor in Airship lol.
- * All credits go to Dottik, Pixeluted, Joe, MakeSureDudeDies, landervander, Lonegladiator (funny), senS
+ * All credits go to Dottik, Joe, Ragnar, MakeSureDudeDies, landervander, Lonegladiator (funny), and senS.
  */
 using HindenburgDll;
 using HindenburgDll.Patches;
 using HindenburgDll.Structs;
-using HindenburgDll.Utils;
 using MelonLoader;
 using System.Collections;
 using System.IO.Pipes;
@@ -14,13 +13,13 @@ using static HindenburgDll.Utils.CompileUtils;
 using Action = System.Action;
 using IntPtr = System.IntPtr;
 
-[assembly: MelonInfo(typeof(Hindenburg), "Hindenburg", "1.0.0", "7GrandDad")]
+[assembly: MelonInfo(typeof(Hindenburg), "Hindenburg", "1.0.1", "7GrandDad")]
 namespace HindenburgDll
 {
 	public class Hindenburg : MelonMod
 	{
 		public static readonly Dictionary<int, object> gcList = new Dictionary<int, object>();
-		public static int pingDelay = 0;
+		public static readonly List<string> teleportQueue = new List<string>();
 		private string autoExecutePath = "";
 		private StringBuilder builder = new StringBuilder();
 		private FunctionHolder[] env = new FunctionHolder[] {
@@ -29,24 +28,20 @@ namespace HindenburgDll
 			new Functions.Debug(),
 			new Functions.Globals(),
 			new Functions.FileSystem(),
-			new Functions.Http()
+			new Functions.Http(),
+			new Functions.Misc()
 		};
-		private EnvHolder envHolder;
-
-		private static IEnumerator MainThreadCoroutine(Action action)
-		{
-			yield return null;
-			action?.Invoke();
-		}
 
 		public override void OnInitializeMelon()
 		{
 			foreach (FunctionHolder obj in env)
 			{
 				obj.CreateDefinitions();
+				obj.luaReg.Add(new luaL_Reg { name = IntPtr.Zero, func = IntPtr.Zero });
 			}
 
 			LuaContextPatch.reloadAction += ReloadHandlers;
+			NetworkManagerPatch.teleportAction += HandleTeleport;
 
 			Task.Run(() => {
 				NamedPipeServerStream server = new NamedPipeServerStream("AirshipExecutor");
@@ -71,12 +66,7 @@ namespace HindenburgDll
 						{
 							string code = builder.ToString();
 							builder.Clear();
-
-							if (envHolder.globalState != IntPtr.Zero)
-							{
-								LoggerInstance.Msg($"executed {code}");
-								ExecuteScript(code, envHolder, false);
-							}
+							ExecuteScript(code, false);
 						}));
 					}
 					else
@@ -87,13 +77,6 @@ namespace HindenburgDll
 			});
 		}
 
-		public void ReloadHandlers()
-		{
-			TaskSchedulerPatch.awaitingTasks.Clear();
-			envHolder = CreateHolder(env);
-			CompileUtils.envHolderInst = envHolder;
-		}
-
 		public override void OnSceneWasLoaded(int buildIndex, string sceneName)
 		{
 			if (envHolder.globalState == IntPtr.Zero)
@@ -101,7 +84,14 @@ namespace HindenburgDll
 				ReloadHandlers();
 			}
 
-			if (autoExecutePath != "" && sceneName == "CoreScene" && buildIndex == 1)
+			if (sceneName == "MainMenu")
+			{
+				teleportQueue.Clear();
+			}
+		}
+		private void HandleTeleport()
+		{
+			if (autoExecutePath != "")
 			{
 				FileInfo[] files = new DirectoryInfo(autoExecutePath).GetFiles();
 
@@ -109,10 +99,29 @@ namespace HindenburgDll
 				{
 					if (file.Extension == ".lua")
 					{
-						ExecuteScript(File.ReadAllText(file.FullName), envHolder, false);
+						ExecuteScript(File.ReadAllText(file.FullName), false);
 					}
 				}
+
+				foreach (string script in teleportQueue)
+				{
+					ExecuteScript(script, false);
+				}
 			}
+
+			teleportQueue.Clear();
+		}
+
+		public void ReloadHandlers()
+		{
+			TaskSchedulerPatch.awaitingTasks.Clear();
+			CreateHolder(env);
+		}
+
+		private static IEnumerator MainThreadCoroutine(Action action)
+		{
+			yield return null;
+			action?.Invoke();
 		}
 	}
 }

@@ -133,7 +133,6 @@ namespace HindenburgDll.Functions
 		{
 			Add("httpget", httpget);
 			Add("request", request);
-			luaReg.Add(new luaL_Reg { name = IntPtr.Zero, func = IntPtr.Zero });
 		}
 
 		public override string LibraryName()
