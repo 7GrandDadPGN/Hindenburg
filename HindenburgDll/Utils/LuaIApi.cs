@@ -1,6 +1,9 @@
-﻿using System.Runtime.InteropServices;
+﻿using HindenburgDll.Patches;
 using HindenburgDll.Structs;
 using Il2Cpp;
+using Il2CppLuau;
+using System.Reflection.Metadata;
+using System.Runtime.InteropServices;
 
 namespace HindenburgDll.Utils
 {
@@ -123,7 +126,7 @@ namespace HindenburgDll.Utils
 		public StateAndIdInteger luaL_checkinteger = Marshal.GetDelegateForFunctionPointer<StateAndIdInteger>(new IntPtr(handle.ToInt64() + Offsets.luaL_checkinteger));
 		public FieldPointer luaL_checkudataC = Marshal.GetDelegateForFunctionPointer<FieldPointer>(new IntPtr(handle.ToInt64() + Offsets.luaL_checkudata));
 
-		public luaerror luaL_errorC = Marshal.GetDelegateForFunctionPointer<luaerror>(new IntPtr(handle.ToInt64() + Offsets.luaL_error));
+		public luaerror luaL_errorC = Marshal.GetDelegateForFunctionPointer<luaerror>(new IntPtr(handle.ToInt64() + Offsets.luaL_errorL));
 		public register luaL_register = Marshal.GetDelegateForFunctionPointer<register>(new IntPtr(handle.ToInt64() + Offsets.luaL_register));
 		public StatePointer luaL_sandboxthread = Marshal.GetDelegateForFunctionPointer<StatePointer>(new IntPtr(handle.ToInt64() + Offsets.luaL_sandboxthread));
 
@@ -261,6 +264,17 @@ namespace HindenburgDll.Utils
 			return type >= (int)lua_Type.LUA_TSTRING;
 		}
 
+		public void PushUnityObject(IntPtr luaState, Il2CppSystem.Object obj)
+		{
+			int id = ThreadDataManager.AddObjectReference(luaState, obj);
+			if (!GarbageCollectorPatch.gcList.ContainsKey(id))
+			{
+				GarbageCollectorPatch.gcList.Add(id, obj);
+			}
+
+			LuauCore.WritePropertyToThread(luaState, obj, obj.GetIl2CppType());
+		}
+
 		public int YieldThread(IntPtr luaState, Func<Task<Action>> callback)
 		{
 			AwaitingTask realTask = new AwaitingTask
@@ -278,14 +292,14 @@ namespace HindenburgDll.Utils
 					return 0;
 				}
 
-				TaskPatch.ResumeAsyncTask(realTask, true);
+				Patches.TaskSchedulerPatch.ResumeAsyncTask(realTask, true);
 				return 0;
 			}
 
 			LuauPluginRaw.PushThread(luaState);
 			realTask.ThreadRef = LuauPluginRaw.Ref(luaState, -1);
 			LuauPluginRaw.Pop(luaState, 1);
-			Hindenburg.awaitingTasks.Add(realTask);
+			Patches.TaskSchedulerPatch.awaitingTasks.Add(realTask);
 
 			return lua_yield(luaState, 0);
 		}

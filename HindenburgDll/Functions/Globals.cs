@@ -3,6 +3,7 @@ using HindenburgDll.Utils;
 using Il2Cpp;
 using Il2CppLuau;
 using Il2CppSystem.Windows.Forms;
+using System.Reflection.Metadata;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using UnityEngine;
@@ -15,6 +16,7 @@ namespace HindenburgDll.Functions
 	internal class Globals : FunctionHolder
 	{
 		private static SHA384 sha = SHA384.Create();
+
 		private struct UnityObjectStruct
 		{
 			public int context;
@@ -81,7 +83,7 @@ namespace HindenburgDll.Functions
 					continue;
 				}
 
-				LuauCore.WritePropertyToThread(luaState, obj, obj.GetIl2CppType());
+				api.PushUnityObject(luaState, obj);
 				api.lua_rawseti(luaState, -2, i);
 				i++;
 			}
@@ -138,7 +140,7 @@ namespace HindenburgDll.Functions
 			{
 				if (AirshipBehaviourRootV2.HasId(obj))
 				{
-					LuauCore.WritePropertyToThread(luaState, obj, obj.GetIl2CppType());
+					api.PushUnityObject(luaState, obj);
 					api.lua_rawseti(luaState, -2, i);
 					i++;
 				}

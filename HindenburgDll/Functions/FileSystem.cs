@@ -2,6 +2,7 @@
 using Il2Cpp;
 using Il2CppLuau;
 using Il2CppSystem.IO;
+using System.Reflection.Metadata;
 using System.Runtime.InteropServices;
 using System.Text;
 using UnityEngine;
@@ -225,7 +226,7 @@ namespace HindenburgDll.Functions
 			{
 				if (bund.name == bundleName)
 				{
-					LuauCore.WritePropertyToThread(luaState, bund, bund.GetIl2CppType());
+					api.PushUnityObject(luaState, bund);
 					return 1;
 				}
 			}
@@ -234,7 +235,7 @@ namespace HindenburgDll.Functions
 			{
 				var stream = new Il2CppSystem.IO.MemoryStream(File.ReadAllBytes(filePath));
 				AssetBundle bundle = AssetBundle.LoadFromStream(stream);
-				LuauCore.WritePropertyToThread(luaState, bundle, bundle.GetIl2CppType());
+				api.PushUnityObject(luaState, bundle);
 				stream.Close();
 			}
 			else
@@ -268,7 +269,7 @@ namespace HindenburgDll.Functions
 						returned = bundle.LoadAsset<UnityEngine.Object>(fileName);
 					}
 
-					LuauCore.WritePropertyToThread(luaState, returned, returned.GetIl2CppType());
+					api.PushUnityObject(luaState, returned);
 				}
 				catch
 				{

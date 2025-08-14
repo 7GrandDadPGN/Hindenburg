@@ -17,15 +17,15 @@ using Il2Cpp;
 using Il2CppLuau;
 using HindenburgDll.Structs;
 using Il2CppMirror;
-using HarmonyLib.Tools;
 using UnityEngine;
+using HindenburgDll.Patches;
 
 [assembly: MelonInfo(typeof(Hindenburg), "Hindenburg", "1.0.0", "7GrandDad")]
 namespace HindenburgDll
 {
 	public class Hindenburg : MelonMod
 	{
-		public static readonly List<AwaitingTask> awaitingTasks = new List<AwaitingTask>();
+		public static readonly Dictionary<int, object> gcList = new Dictionary<int, object>();
 		public static int pingDelay = 0;
 		private string autoExecutePath = "";
 		private StringBuilder builder = new StringBuilder();
@@ -52,7 +52,7 @@ namespace HindenburgDll
 				obj.CreateDefinitions();
 			}
 
-			LuaPatch.reloadAction += ReloadHandlers;
+			LuaContextPatch.reloadAction += ReloadHandlers;
 
 			Task.Run(() => {
 				NamedPipeServerStream server = new NamedPipeServerStream("AirshipExecutor");
@@ -95,7 +95,7 @@ namespace HindenburgDll
 
 		public void ReloadHandlers()
 		{
-			awaitingTasks.Clear();
+			TaskSchedulerPatch.awaitingTasks.Clear();
 			envHolder = CreateHolder(env);
 			CompileUtils.envHolderInst = envHolder;
 		}
@@ -117,84 +117,6 @@ namespace HindenburgDll
 					{
 						ExecuteScript(File.ReadAllText(file.FullName), envHolder, false);
 					}
-				}
-			}
-		}
-	}
-
-	[HarmonyPatch(typeof(LuauCore), "ResetContext", new Type[] { typeof(LuauContext) })]
-	public static class LuaPatch
-	{
-		public static event Action reloadAction;
-		private static void Postfix(LuauContext context)
-		{
-			if (context == LuauContext.Protected)
-			{
-				reloadAction?.Invoke();
-			}
-		}
-	}
-
-	[HarmonyPatch(typeof(NetworkTime), "OnClientPing", new Type[] { typeof(NetworkPingMessage) })]
-	public static class NetworkPatch
-	{
-		private static bool Prefix(NetworkPingMessage message)
-		{
-			if (Hindenburg.pingDelay <= 0) return true;
-			NetworkPongMessage msg = new NetworkPongMessage(
-				message.localTime - ((double)Hindenburg.pingDelay / 1000), 
-				0, 0
-			);
-			NetworkClient.Send(msg, 1);
-			return false;
-		}
-	}
-
-	[HarmonyPatch(typeof(ThreadDataManager), "InvokeUpdate")]
-	public static class TaskPatch
-	{
-		private static void Prefix()
-		{
-			for (var i = 0; i < Hindenburg.awaitingTasks.Count; i++)
-			{
-				AwaitingTask awaitingTask = Hindenburg.awaitingTasks[i];
-				if (!awaitingTask.Task.IsCompleted) continue;
-
-				Hindenburg.awaitingTasks.RemoveAt(i);
-				ResumeAsyncTask(awaitingTask);
-				i--;
-			}
-		}
-
-		public static async void ResumeAsyncTask(AwaitingTask awaitingTask, bool immediate = false)
-		{
-			IntPtr thread = awaitingTask.Thread;
-
-			if (awaitingTask.ThreadRef != 0)
-			{
-				LuauPluginRaw.Unref(thread, awaitingTask.ThreadRef);
-			}
-
-			if (awaitingTask.Task.IsFaulted)
-			{
-				LuauPluginRaw.PushString(thread, $"Error: Exception thrown in {awaitingTask.Task.Exception.Message}");
-				ThreadDataManager.Error(thread);
-				LuauPlugin.LuauResumeThreadError(thread);
-				return;
-			}
-
-			awaitingTask.Task.Result();
-			if (!immediate)
-			{
-				try
-				{
-					LuauPlugin.LuauResumeThread(thread, 1);
-				}
-				catch
-				{
-					LuauPluginRaw.PushString(thread, $"Error: Exception thrown in");
-					ThreadDataManager.Error(thread);
-					LuauPlugin.LuauResumeThreadError(thread);
 				}
 			}
 		}
