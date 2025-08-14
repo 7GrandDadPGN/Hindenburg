@@ -1,6 +1,5 @@
 ﻿using HarmonyLib;
 using Il2CppLuau;
-using UnityEngine;
 
 namespace HindenburgDll.Patches
 {

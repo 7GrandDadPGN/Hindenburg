@@ -2,7 +2,6 @@
 using HindenburgDll.Structs;
 using Il2Cpp;
 using Il2CppLuau;
-using System.Reflection.Metadata;
 using System.Runtime.InteropServices;
 
 namespace HindenburgDll.Utils

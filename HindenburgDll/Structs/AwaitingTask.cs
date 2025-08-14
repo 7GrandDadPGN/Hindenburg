@@ -1,12 +1,4 @@
-﻿using Il2Cpp;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace HindenburgDll.Structs
+﻿namespace HindenburgDll.Structs
 {
 	public struct AwaitingTask
 	{

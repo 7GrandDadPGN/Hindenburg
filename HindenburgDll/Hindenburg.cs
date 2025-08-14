@@ -2,23 +2,17 @@
  * This project is skidded from https://github.com/SecondNewtonLaw/RbxStu-V3/ just to get a simple executor in Airship lol.
  * All credits go to Dottik, Pixeluted, Joe, MakeSureDudeDies, landervander, Lonegladiator (funny), senS
  */
+using HindenburgDll;
+using HindenburgDll.Patches;
+using HindenburgDll.Structs;
+using HindenburgDll.Utils;
 using MelonLoader;
-
+using System.Collections;
+using System.IO.Pipes;
+using System.Text;
 using static HindenburgDll.Utils.CompileUtils;
 using Action = System.Action;
 using IntPtr = System.IntPtr;
-using HindenburgDll.Utils;
-using System.Collections;
-using System.IO.Pipes;
-using HindenburgDll;
-using System.Text;
-using HarmonyLib;
-using Il2Cpp;
-using Il2CppLuau;
-using HindenburgDll.Structs;
-using Il2CppMirror;
-using UnityEngine;
-using HindenburgDll.Patches;
 
 [assembly: MelonInfo(typeof(Hindenburg), "Hindenburg", "1.0.0", "7GrandDad")]
 namespace HindenburgDll

@@ -1,8 +1,8 @@
-﻿using static HindenburgDll.Utils.CompileUtils;
-using HindenburgDll.Structs;
+﻿using HindenburgDll.Structs;
 using HindenburgDll.Utils;
-using System.Net;
 using Il2Cpp;
+using System.Net;
+using static HindenburgDll.Utils.CompileUtils;
 
 namespace HindenburgDll.Functions
 {

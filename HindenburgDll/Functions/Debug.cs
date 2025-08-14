@@ -1,12 +1,7 @@
 ﻿using HindenburgDll.Structs;
 using HindenburgDll.Utils;
 using Il2Cpp;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 using static HindenburgDll.Utils.CompileUtils;
 
 namespace HindenburgDll.Functions

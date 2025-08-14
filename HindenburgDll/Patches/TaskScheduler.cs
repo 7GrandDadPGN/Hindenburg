@@ -1,7 +1,7 @@
-﻿using Il2Cpp;
-using Il2CppLuau;
-using HarmonyLib;
+﻿using HarmonyLib;
 using HindenburgDll.Structs;
+using Il2Cpp;
+using Il2CppLuau;
 
 namespace HindenburgDll.Patches
 {

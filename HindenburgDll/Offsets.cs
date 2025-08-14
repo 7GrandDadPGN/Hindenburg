@@ -1,6 +1,4 @@
-﻿using Il2CppLuau;
-
-namespace HindenburgDll
+﻿namespace HindenburgDll
 {
 	internal class Offsets
 	{

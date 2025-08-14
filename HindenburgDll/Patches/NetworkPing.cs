@@ -1,5 +1,5 @@
-﻿using Il2CppMirror;
-using HarmonyLib;
+﻿using HarmonyLib;
+using Il2CppMirror;
 
 namespace HindenburgDll.Patches
 {
