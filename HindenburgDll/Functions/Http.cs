@@ -2,6 +2,7 @@
 using HindenburgDll.Utils;
 using Il2Cpp;
 using System.Net;
+using System.Net.Http.Headers;
 using static HindenburgDll.Utils.CompileUtils;
 
 namespace HindenburgDll.Functions
@@ -72,10 +73,11 @@ namespace HindenburgDll.Functions
 				{
 					if (request.Content != null)
 					{
-						request.Content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(header.Value);
+						request.Content.Headers.ContentType = new MediaTypeHeaderValue(header.Value);
 					}
 					continue;
 				}
+
 				request.Headers.Add(header.Key, header.Value); ;
 			}
 

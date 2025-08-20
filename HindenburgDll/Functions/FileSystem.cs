@@ -203,7 +203,7 @@ namespace HindenburgDll.Functions
 				{
 					FileSystemInfo File = Files[i];
 					LuauPluginRaw.PushString(luaState, File.FullName.Substring(basePath.Length + 1));
-					api.lua_rawseti(luaState, -2, i);
+					api.lua_rawseti(luaState, -2, i + 1);
 				}
 			}
 			else
