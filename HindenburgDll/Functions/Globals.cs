@@ -73,7 +73,7 @@ namespace HindenburgDll.Functions
 			int i = 1;
 			foreach (AirshipScript obj in list)
 			{
-				if (obj.name == null)
+				if (obj.m_path == null || obj.name == "")
 				{
 					continue;
 				}
