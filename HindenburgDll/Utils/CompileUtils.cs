@@ -48,55 +48,60 @@ namespace HindenburgDll.Utils
 			return compilationResult;
 		}
 
+		public static IntPtr CreateExploitThread(IntPtr baseThread, FunctionHolder[] env)
+		{
+			IntPtr newThread = api.lua_newthread(baseThread);
+			LuauPluginRaw.Ref(newThread, -1);
+			LuauPluginRaw.Pop(newThread, 1);
+
+			api.luaL_sandboxthread(newThread);
+			LuauPluginRaw.NewTable(newThread);
+			api.lua_setglobal(newThread, "_G");
+			LuauPluginRaw.NewTable(newThread);
+			api.lua_setglobal(newThread, "shared");
+
+			int top = LuauPluginRaw.GetTop(newThread);
+			foreach (FunctionHolder holder in env)
+			{
+				luaL_Reg[] funcs = holder.luaReg.ToArray();
+
+				if (!holder.PushToGlobal())
+				{
+					LuauPluginRaw.NewTable(newThread);
+					api.luaL_register(newThread, IntPtr.Zero, funcs);
+					LuauPluginRaw.SetReadonly(newThread, -1, true);
+					api.lua_setglobal(newThread, holder.LibraryName());
+				}
+				else
+				{
+					api.lua_pushvalue(newThread, Offsets.LUA_GLOBALSINDEX);
+					api.luaL_register(newThread, IntPtr.Zero, funcs);
+				}
+			}
+			api.lua_settop(newThread, top);
+
+			return newThread;
+		}
+
 		public static void CreateHolder(FunctionHolder[] env)
 		{
 			GameObject obj = new GameObject(RandomString(8));
-			GameObject objCore = new GameObject(RandomString(8));
-			AirshipScript initScript = CompileScript("", "main");
-			AirshipScript initScriptCore = CompileScript("", "main");
+			AirshipScript initScript = CompileScript("", "");
 			IntPtr mainThread = LuauScript.LoadScript(obj, LuauContext.Game, LuauScriptCacheMode.NotCached, initScript);
-			IntPtr coreThread = LuauScript.LoadScript(objCore, LuauContext.Protected, LuauScriptCacheMode.NotCached, initScriptCore);
+			IntPtr coreThread = LuauScript.LoadScript(obj, LuauContext.Protected, LuauScriptCacheMode.NotCached, initScript);
 			IntPtr exploitThread = IntPtr.Zero;
+			GameObject.Destroy(initScript);
+			GameObject.Destroy(obj);
 
 			if (mainThread != IntPtr.Zero)
 			{
-				exploitThread = api.lua_newthread(mainThread);
-				LuauPluginRaw.Ref(exploitThread, -1);
-				LuauPluginRaw.Pop(exploitThread, 1);
-
-				api.luaL_sandboxthread(exploitThread);
-				LuauPluginRaw.NewTable(exploitThread);
-				api.lua_setglobal(exploitThread, "_G");
-				LuauPluginRaw.NewTable(exploitThread);
-				api.lua_setglobal(exploitThread, "shared");
-
-				int top = LuauPluginRaw.GetTop(exploitThread);
-				foreach (FunctionHolder holder in env)
+				envHolder = new EnvHolder
 				{
-					luaL_Reg[] funcs = holder.luaReg.ToArray();
-
-					if (!holder.PushToGlobal())
-					{
-						LuauPluginRaw.NewTable(exploitThread);
-						api.luaL_register(exploitThread, IntPtr.Zero, funcs);
-						LuauPluginRaw.SetReadonly(exploitThread, -1, true);
-						api.lua_setglobal(exploitThread, holder.LibraryName());
-					}
-					else
-					{
-						api.lua_pushvalue(exploitThread, Offsets.LUA_GLOBALSINDEX);
-						api.luaL_register(exploitThread, IntPtr.Zero, funcs);
-					}
-				}
-				api.lua_settop(exploitThread, top);
+					globalState = mainThread,
+					coreState = CreateExploitThread(coreThread, env),
+					exploitState = CreateExploitThread(mainThread, env)
+				};
 			}
-
-			envHolder = new EnvHolder
-			{
-				globalState = mainThread,
-				coreState = coreThread,
-				exploitState = exploitThread
-			};
 
 			ExecuteScript(@"
 				setreadonly(debug, false)
