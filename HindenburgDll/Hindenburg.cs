@@ -13,7 +13,7 @@ using static HindenburgDll.Utils.CompileUtils;
 using Action = System.Action;
 using IntPtr = System.IntPtr;
 
-[assembly: MelonInfo(typeof(Hindenburg), "Hindenburg", "1.0.1", "7GrandDad")]
+[assembly: MelonInfo(typeof(Hindenburg), "Hindenburg", "1.0.2", "7GrandDad")]
 namespace HindenburgDll
 {
 	public class Hindenburg : MelonMod
