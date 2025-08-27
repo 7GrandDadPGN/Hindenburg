@@ -54,6 +54,8 @@ namespace HindenburgDll.Utils
 
 		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
 		public delegate int StateAndIdAndSizeInteger(IntPtr luaState, int idx, IntPtr size);
+
+		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
 		public delegate IntPtr FieldPointer(IntPtr luaState, int idx, IntPtr str);
 
 		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
@@ -81,6 +83,9 @@ namespace HindenburgDll.Utils
 		public delegate IntPtr luauload(IntPtr luaState, IntPtr chunkName, IntPtr bytecode, int bytecodeSize, int native);
 
 		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+		public delegate IntPtr luaucompile(IntPtr code, int idx, IntPtr options, ref int size);
+
+		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
 		public delegate bool getinfo(IntPtr luaState, int idx, IntPtr str, IntPtr debug);
 
 		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
@@ -92,11 +97,15 @@ namespace HindenburgDll.Utils
 		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
 		public delegate bool gcovoid(IntPtr gcx, IntPtr luaPage, IntPtr gcObj);
 
+		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+		public delegate IntPtr decrypt(IntPtr data, long dataSize, IntPtr key, ref long size);
+
 		public static TDelegate GetFunction<TDelegate>(int offset)
 		{
 			return Marshal.GetDelegateForFunctionPointer<TDelegate>(new IntPtr(handle.ToInt64() + offset));
 		}
 
+		public decrypt decrypt_routine = GetFunction<decrypt>(Offsets.decrypt_routine);
 		public StateAndIdBool lua_iscfunction = GetFunction<StateAndIdBool>(Offsets.lua_iscfunction);
 		public luaerror luaA_pushobject = GetFunction<luaerror>(Offsets.luaA_pushobject);
 		public StateAndIdBool lua_isnumber = GetFunction<StateAndIdBool>(Offsets.lua_isnumber);
@@ -115,7 +124,7 @@ namespace HindenburgDll.Utils
 
 		public setsafeenv lua_setsafeenv = GetFunction<setsafeenv>(Offsets.lua_setsafeenv);
 		public StateAndIdPointer lua_settop = GetFunction<StateAndIdPointer>(Offsets.lua_settop);
-		public StateAndIdInteger lua_tointeger = GetFunction<StateAndIdInteger>(Offsets.wrap_tointeger);
+		public StateAndIdAndSizeInteger lua_tointegerx = GetFunction<StateAndIdAndSizeInteger>(Offsets.lua_tointegerx);
 		public StringReturn lua_tolstring = GetFunction<StringReturn>(Offsets.lua_tolstring);
 		public StateAndIdPointer lua_topointer = GetFunction<StateAndIdPointer>(Offsets.lua_topointer);
 		public StateAndIdInteger lua_type = GetFunction<StateAndIdInteger>(Offsets.lua_type);
@@ -139,6 +148,8 @@ namespace HindenburgDll.Utils
 		public barrierback luaC_barrierback = GetFunction<barrierback>(Offsets.luaC_barrierback);
 
 		public luauload luau_load = GetFunction<luauload>(Offsets.luau_load);
+		public luaucompile luau_compile = GetFunction<luaucompile>(Offsets.luau_compile);
+
 
 		public visitgco luaM_visitgco = GetFunction<visitgco>(Offsets.luaM_visitgco);
 
@@ -215,7 +226,10 @@ namespace HindenburgDll.Utils
 			IntPtr str = lua_tolstring(thread, idx, ref size);
 			return Marshal.PtrToStringUTF8(str, size);
 		}
-
+		public int lua_tointeger(IntPtr thread, int idx)
+		{
+			return lua_tointegerx(thread, idx, IntPtr.Zero);
+		}
 		public void luaC_threadbarrier(IntPtr thread)
 		{
 			if ((Marshal.ReadByte(thread, 1) & 4) != 0) // marked bit in common header, 4 is the black bit
@@ -268,6 +282,24 @@ namespace HindenburgDll.Utils
 		public bool iscollectable(int type)
 		{
 			return type >= (int)lua_Type.LUA_TSTRING;
+		}
+
+		public byte[] FixBytecode(byte[] bytecode)
+		{
+			IntPtr keyString = Marshal.StringToCoTaskMemUTF8("afea643bcd75491f");
+			IntPtr data = Marshal.AllocCoTaskMem(bytecode.Length);
+			Marshal.Copy(bytecode, 0, data, bytecode.Length);
+
+			long size = 0;
+			IntPtr tData = decrypt_routine(data + 8, bytecode.Length - 8, keyString, ref size);
+
+			byte[] fixedBytecode = new byte[size];
+			Marshal.Copy(tData, fixedBytecode, 0, (int)size);
+
+			Marshal.FreeCoTaskMem(keyString);
+			Marshal.FreeCoTaskMem(data);
+			Marshal.FreeCoTaskMem(tData);
+			return fixedBytecode;
 		}
 
 		public void PushUnityObject(IntPtr luaState, Il2CppSystem.Object obj)

@@ -1,6 +1,5 @@
 ﻿// credits to https://github.com/SecondNewtonLaw/RbxStu-V3/ because I cannot code lol, skidding!
 
-
 using HindenburgDll.Structs;
 using Il2Cpp;
 using Il2CppLuau;
@@ -45,6 +44,16 @@ namespace HindenburgDll.Utils
 			Marshal.FreeCoTaskMem(dataPointer);
 
 			CompilationResult compilationResult = Marshal.PtrToStructure<CompilationResult>(result);
+			if (data != "" && compilationResult.Compiled)
+			{
+				long size = 0;
+				IntPtr keyString = Marshal.StringToCoTaskMemUTF8("afea643bcd75491f");
+				IntPtr finalData = api.decrypt_routine(compilationResult.Data + 8, compilationResult.DataSize - 8, keyString, ref size);
+				compilationResult.Data = finalData;
+				compilationResult.DataSize = size;
+				Marshal.FreeCoTaskMem(keyString);
+			}
+
 			return compilationResult;
 		}
 

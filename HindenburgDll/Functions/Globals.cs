@@ -100,7 +100,7 @@ namespace HindenburgDll.Functions
 			if (obj is AirshipScript)
 			{
 				AirshipScript compObj = (AirshipScript)obj;
-				api.lua_pushlstringB(luaState, compObj.m_bytes);
+				api.lua_pushlstringB(luaState, api.FixBytecode(compObj.m_bytes));
 			}
 			else
 			{
@@ -119,7 +119,7 @@ namespace HindenburgDll.Functions
 			if (obj is AirshipScript)
 			{
 				AirshipScript compObj = (AirshipScript)obj;
-				byte[] hash = sha.ComputeHash(compObj.m_bytes);
+				byte[] hash = sha.ComputeHash(api.FixBytecode(compObj.m_bytes));
 				LuauPluginRaw.PushString(luaState, BitConverter.ToString(hash).Replace("-", "").ToLower());
 			}
 			else
