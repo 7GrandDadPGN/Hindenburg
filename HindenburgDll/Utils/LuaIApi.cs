@@ -53,6 +53,7 @@ namespace HindenburgDll.Utils
 		public delegate int StateAndIdInteger(IntPtr luaState, int idx);
 
 		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+		public delegate int StateAndIdAndSizeInteger(IntPtr luaState, int idx, IntPtr size);
 		public delegate IntPtr FieldPointer(IntPtr luaState, int idx, IntPtr str);
 
 		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
