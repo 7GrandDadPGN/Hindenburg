@@ -15,6 +15,7 @@ namespace HindenburgDll.Functions
 				api.luaL_argerrorL(luaState, 1, "function or level expected");
 			}
 
+
 			if (api.lua_isnumber(luaState, 1))
 			{
 				IntPtr allocation = Marshal.AllocCoTaskMem(Marshal.SizeOf<lua_Debug>());
