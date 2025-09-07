@@ -2,6 +2,7 @@
 using HindenburgDll.Structs;
 using HindenburgDll.Utils;
 using Il2Cpp;
+using Il2CppInterop.Runtime;
 using Il2CppLuau;
 using Il2CppSystem.Windows.Forms;
 using System.Runtime.InteropServices;
@@ -28,6 +29,44 @@ namespace HindenburgDll.Functions
 			int target = api.luaL_checkinteger(luaState, 1);
 			NetworkTimePatch.pingDelay = target;
 			return 0;
+		}
+
+		public static int getcomponent(IntPtr luaState)
+		{
+			IntPtr instanceId = api.luaL_checkudata(luaState, 1, "UnityObject");
+			string typeComp = api.lua_checkstring(luaState, 2);
+			UnityObjectStruct uStruct = Marshal.PtrToStructure<UnityObjectStruct>(instanceId);
+			Il2CppSystem.Object obj = ThreadDataManager.GetObjectReference(luaState, uStruct.objectId);
+
+			if (obj.GetIl2CppType().Name == "GameObject")
+			{
+				GameObject newobj = obj.Cast<GameObject>();
+				var type = LuauCore.CoreInstance.GetTypeFromString(typeComp);
+
+				if (type != null)
+				{
+					var component = newobj.GetComponent(LuauCore.CoreInstance.GetTypeFromString(typeComp));
+
+					if (component != null)
+					{
+						api.PushUnityObject(luaState, component);
+					}
+					else
+					{
+						LuauPluginRaw.PushNil(luaState);
+					}
+				}
+				else
+				{
+					api.luaL_argerrorL(luaState, 2, "invalid type");
+				}
+			}
+			else
+			{
+				LuauPluginRaw.PushNil(luaState);
+			}
+
+			return 1;
 		}
 
 		public static int getgenv(IntPtr luaState)
@@ -199,10 +238,11 @@ namespace HindenburgDll.Functions
 			return 1;
 		}
 
-		public static int run_protected(IntPtr luaState)
+		public static int run_code(IntPtr luaState)
 		{
 			string code = api.lua_checkstring(luaState, 1);
-			ExecuteScript(code, true);
+			bool core = api.luaL_optboolean(luaState, 2, true);
+			ExecuteScript(code, core);
 			return 0;
 		}
 
@@ -260,6 +300,7 @@ namespace HindenburgDll.Functions
 			Add("backtrack", backtrack);
 			Add("base64encode", Crypt.base64encode);
 			Add("base64decode", Crypt.base64decode);
+			Add("getcomponent", getcomponent);
 			Add("getgenv", getgenv);
 			Add("getgc", getgc);
 			Add("getfpscap", getfpscap);
@@ -270,7 +311,7 @@ namespace HindenburgDll.Functions
 			Add("getscriptbytecode", getscriptbytecode);
 			Add("getscripthash", getscripthash);
 			Add("getinstances", getinstances);
-			Add("run_protected", run_protected);
+			Add("run_code", run_code);
 			Add("setclipboard", setclipboard);
 			Add("setrawmetatable", setrawmetatable);
 			Add("setreadonly", setreadonly);
