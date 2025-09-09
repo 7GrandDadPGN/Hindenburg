@@ -283,18 +283,18 @@ namespace HindenburgDll.Functions
 
 		public override void CreateDefinitions()
 		{
-			Add("isfolder", isfolder);
-			Add("makefolder", makefolder);
-			Add("delfolder", delfolder);
-			Add("isfile", isfile);
-			Add("readfile", readfile);
-			Add("loadfile", loadfile);
 			Add("appendfile", appendfile);
-			Add("writefile", writefile);
 			Add("delfile", delfile);
+			Add("delfolder", delfolder);
+			Add("getasset", getasset);
+			Add("isfile", isfile);
+			Add("isfolder", isfolder);
 			Add("listfiles", listfiles);
 			Add("loadbundle", loadbundle);
-			Add("getasset", getasset);
+			Add("loadfile", loadfile);
+			Add("makefolder", makefolder);
+			Add("readfile", readfile);
+			Add("writefile", writefile);
 		}
 
 		public override string LibraryName()

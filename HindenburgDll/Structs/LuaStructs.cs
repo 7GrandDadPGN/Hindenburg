@@ -10,13 +10,13 @@ namespace HindenburgDll.Structs
 	}
 
 	[StructLayout(LayoutKind.Explicit)]
-	public struct Value
+	public unsafe struct Value
 	{
 		[FieldOffset(0)] public IntPtr gc;
 		[FieldOffset(0)] public IntPtr p;
 		[FieldOffset(0)] public double n;
 		[FieldOffset(0)] public int b;
-		[FieldOffset(0)] public float v2;
+		[FieldOffset(0)] public fixed float v2[2];
 	}
 
 	public struct TValue
@@ -33,7 +33,7 @@ namespace HindenburgDll.Structs
 		[FieldOffset(4)] public int aboundary;
 	}
 
-	public struct lua_Debug
+	public unsafe struct lua_Debug
 	{
 		public IntPtr name;      // (n)
 		public IntPtr what;      // (s) `Lua', `C', `main', `tail'
@@ -41,12 +41,12 @@ namespace HindenburgDll.Structs
 		public IntPtr short_src; // (s)
 		public int linedefined;       // (s)
 		public int currentline;       // (l)
-		public char nupvals; // (u) number of upvalues
-		public char nparams; // (a) number of parameters
+		public byte nupvals; // (u) number of upvalues
+		public byte nparams; // (a) number of parameters
 		public char isvararg;         // (a)
 		public IntPtr userdata;        // only valid in luau_callhook
 
-		public char ssbuf;
+		public fixed char ssbuf[256];
 	}
 
 	public struct UpVal
@@ -208,5 +208,12 @@ namespace HindenburgDll.Structs
 		public IntPtr env;
 
 		public closures closures;
+	}
+
+	internal class Offsets
+	{
+		public static int LUA_REGISTRYINDEX = -8000 - 2000;
+		public static int LUA_ENVIRONINDEX = -8000 - 2001;
+		public static int LUA_GLOBALSINDEX = -8000 - 2002;
 	}
 }

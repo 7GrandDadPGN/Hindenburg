@@ -298,26 +298,26 @@ namespace HindenburgDll.Functions
 		public override void CreateDefinitions()
 		{
 			Add("backtrack", backtrack);
-			Add("base64encode", Crypt.base64encode);
 			Add("base64decode", Crypt.base64decode);
+			Add("base64encode", Crypt.base64encode);
 			Add("getcomponent", getcomponent);
-			Add("getgenv", getgenv);
-			Add("getgc", getgc);
 			Add("getfpscap", getfpscap);
-			Add("getrenv", getrenv);
-			Add("getreg", getreg);
+			Add("getgc", getgc);
+			Add("getgenv", getgenv);
+			Add("getinstances", getinstances);
 			Add("getrawmetatable", getrawmetatable);
-			Add("getscripts", getscripts);
+			Add("getreg", getreg);
+			Add("getrenv", getrenv);
 			Add("getscriptbytecode", getscriptbytecode);
 			Add("getscripthash", getscripthash);
-			Add("getinstances", getinstances);
+			Add("getscripts", getscripts);
+			Add("identifyexecutor", identifyexecutor);
+			Add("isreadonly", isreadonly);
 			Add("run_code", run_code);
 			Add("setclipboard", setclipboard);
+			Add("setfpscap", setfpscap);
 			Add("setrawmetatable", setrawmetatable);
 			Add("setreadonly", setreadonly);
-			Add("setfpscap", setfpscap);
-			Add("isreadonly", isreadonly);
-			Add("identifyexecutor", identifyexecutor);
 		}
 
 		public override string LibraryName()

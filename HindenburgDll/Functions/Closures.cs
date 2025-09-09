@@ -47,9 +47,9 @@ namespace HindenburgDll.Functions
 
 		public override void CreateDefinitions()
 		{
-			Add("loadstring", loadstring);
 			Add("iscclosure", iscclosure);
 			Add("islclosure", islclosure);
+			Add("loadstring", loadstring);
 		}
 
 		public override string LibraryName()

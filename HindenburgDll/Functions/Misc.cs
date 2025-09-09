@@ -71,10 +71,10 @@ namespace HindenburgDll.Functions
 
 		public override void CreateDefinitions()
 		{
-			Add("messagebox", messagebox);
-			Add("setwindowtitle", setwindowtitle);
-			Add("queue_on_teleport", queue_on_teleport);
 			Add("clear_teleport_queue", clear_teleport_queue);
+			Add("messagebox", messagebox);
+			Add("queue_on_teleport", queue_on_teleport);
+			Add("setwindowtitle", setwindowtitle);
 		}
 
 		public override string LibraryName()

@@ -107,6 +107,7 @@ namespace HindenburgDll.Utils
 		public decrypt decrypt_routine = GetFunction<decrypt>("4C 89 4C 24 20 53 55 57 41 54 41 56 41 57 48 83");
 		public StateAndIdBool lua_iscfunction = GetFunction<StateAndIdBool>("48 83 EC 28 85 D2 7E 23 4C 8B 41 10 48 8D 05 ?? ?? 0A 00 49 83 C0 F0 48 63 D2 48 C1 E2 04 4C 03 C2 4C 3B 41 08 49 0F 42 C0 EB 1A 81 FA F0 D8 FF FF 7E 0D 48 63 C2 48 C1 E0 04 48 03 41 08 EB 05 E8 6B 20");
 		public luaerror luaA_pushobject = GetFunction<luaerror>("48 8B 41 08 0F 10 02 0F 11 00 48 83 41 08 10 C3 48 83 EC 28 4C 8D 15 ?? ?? 0A 00 85 D2 7E");
+		public StateAndIdPointer luaA_toobject = GetFunction<StateAndIdPointer>("48 83 EC 28 4C 8D 15 ?? ?? 0A 00 85 D2 7E");
 		public StateAndIdBool lua_isnumber = GetFunction<StateAndIdBool>("48 83 EC 48 48 8B 05 ?? ?? 0D 00 48 33 C4 48 89 44 24 30 4C 8B C1");
 		public StateAndIdBool lua_isstring = GetFunction<StateAndIdBool>("48 83 EC 28 85 D2 7E 1F");
 		private FieldPointer getfield = GetFunction<FieldPointer>("48 89 5C 24 20 55 56 57 48 83 EC 40 48 8B 05 ?? ?? 0D 00 48 33 C4 48 89 44 24 30 F6 41");
