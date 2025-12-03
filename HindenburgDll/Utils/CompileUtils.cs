@@ -39,7 +39,7 @@ namespace HindenburgDll.Utils
 		{
 			IntPtr chunkPointer = Marshal.StringToCoTaskMemUTF8(chunkName);
 			IntPtr dataPointer = Marshal.StringToCoTaskMemUTF8(data);
-			IntPtr result = LuauPlugin.LuauCompileCode(dataPointer, Encoding.UTF8.GetByteCount(data), chunkPointer, data.Length, LuauPlugin.LuauOptimizationLevel.Max);
+			IntPtr result = LuauPlugin.CompileCode(dataPointer, Encoding.UTF8.GetByteCount(data), chunkPointer, data.Length, LuauPlugin.LuauOptimizationLevel.Max);
 			Marshal.FreeCoTaskMem(chunkPointer);
 			Marshal.FreeCoTaskMem(dataPointer);
 

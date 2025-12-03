@@ -35,7 +35,7 @@ namespace HindenburgDll.Patches
 			{
 				LuauPluginRaw.PushString(thread, $"Error: Exception thrown in {awaitingTask.Task.Exception.Message}");
 				ThreadDataManager.Error(thread);
-				LuauPlugin.LuauResumeThreadError(thread);
+				LuauPlugin.ResumeThreadError(thread);
 				return;
 			}
 
@@ -44,13 +44,13 @@ namespace HindenburgDll.Patches
 			{
 				try
 				{
-					LuauPlugin.LuauResumeThread(thread, 1);
+					LuauPlugin.ResumeThread(thread, 1);
 				}
 				catch
 				{
 					LuauPluginRaw.PushString(thread, $"Error: Exception thrown in");
 					ThreadDataManager.Error(thread);
-					LuauPlugin.LuauResumeThreadError(thread);
+					LuauPlugin.ResumeThreadError(thread);
 				}
 			}
 		}

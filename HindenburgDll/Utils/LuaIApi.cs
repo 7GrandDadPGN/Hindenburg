@@ -101,12 +101,13 @@ namespace HindenburgDll.Utils
 
 		public static TDelegate GetFunction<TDelegate>(string sig)
 		{
-			int found = AOBDumper.ScanFunction(sig);
-			if (found == 0)
+			int offset = AOBDumper.ScanFunction(sig);
+			if (offset == 0)
 			{
-				MelonLoader.MelonLogger.Msg($"failed! {sig} {found}");
+				MelonLoader.MelonLogger.Msg($"failed! {sig}");
 			}
-			return Marshal.GetDelegateForFunctionPointer<TDelegate>(new IntPtr(handle.ToInt64() + found));
+
+			return Marshal.GetDelegateForFunctionPointer<TDelegate>(new IntPtr(handle.ToInt64() + offset));
 		}
 
 		public decrypt decrypt_routine = GetFunction<decrypt>("4C 89 4C 24 20 53 55 57 41 54 41 56 41 57 48 83");
@@ -117,19 +118,19 @@ namespace HindenburgDll.Utils
 		public StateAndIdBool lua_isstring = GetFunction<StateAndIdBool>("48 83 EC 28 85 D2 7E 1F");
 		private FieldPointer getfield = GetFunction<FieldPointer>("48 89 5C 24 20 55 56 57 48 83 EC 40 48 8B 05 ?? ?? 0D 00 48 33 C4 48 89 44 24 30 F6 41");
 		private FieldPointer setfield = GetFunction<FieldPointer>("48 89 5C 24 20 55 56 57 48 83 EC 40 48 8B 05 ?? ?? 0D 00 48 33 C4 48 89 44 24 30 49 8B");
-		public StateAndIdPointer lua_getmetatable = GetFunction<StateAndIdPointer>("48 89 5C 24 08 57 48 83 EC 20 F6 41 01 04 48 8B D9 48 63 FA 74 0C 4C 8D 41 68 48 8B D1 E8 4E AA");
+		public StateAndIdPointer lua_getmetatable = GetFunction<StateAndIdPointer>("48 89 5C 24 08 57 48 83 EC 20 F6 41 01 04 48 8B D9 48 63 FA 74 0C 4C 8D 41 68 48 8B D1 E8 6E B1");
 		public StateAndIdBool lua_getreadonly = GetFunction<StateAndIdBool>("48 83 EC 28 85 D2 7E 2D");
 		public StateAndIdInteger lua_rawcheckstack = GetFunction<StateAndIdInteger>("48 89 5C 24 08 57 48 83 EC 20 4C 8B 41 28");
 		public StackIndexPointer lua_rawseti = GetFunction<StackIndexPointer>("48 89 6C 24 10 48 89 74 24 18 57 48 83 EC 20 45");
 		public StringPointer lua_pushlstring = GetFunction<StringPointer>("48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 57 48 83 EC 20 4C 8B 49 18 49 8B");
-		public StateAndIdPointer lua_pushvalue = GetFunction<StateAndIdPointer>("48 89 5C 24 08 57 48 83 EC 20 F6 41 01 04 48 8B D9 48 63 FA 74 0C 4C 8D 41 68 48 8B D1 E8 EE 9C");
+		public StateAndIdPointer lua_pushvalue = GetFunction<StateAndIdPointer>("48 89 5C 24 08 57 48 83 EC 20 F6 41 01 04 48 8B D9 48 63 FA 74 0C 4C 8D 41 68 48 8B D1 E8 0E A4");
 		public StatePointer lua_newthread = GetFunction<StatePointer>("48 89 5C 24 08 57 48 83 EC 20 48 8B 51 18");
-		public StateAndIdInteger lua_next = GetFunction<StateAndIdInteger>("48 89 5C 24 08 48 89 74 24 10 57 48 83 EC 20 F6 41 01 04 48 8B D9 48 63 F2 74 0C 4C 8D 41 68 48 8B D1 E8 09");
+		public StateAndIdInteger lua_next = GetFunction<StateAndIdInteger>("48 89 5C 24 08 48 89 74 24 10 57 48 83 EC 20 F6 41 01 04 48 8B D9 48 63 F2 74 0C 4C 8D 41 68 48 8B D1 E8 B9");
 		public StateAndIdPointer lua_setmetatable = GetFunction<StateAndIdPointer>("40 53 48 83 EC 20 48 8D 59");
 
 		public setsafeenv lua_setsafeenv = GetFunction<setsafeenv>("48 83 EC 28 45 8B D0 85 D2 7E 32 4C 8B 49 10 48 8D 05 ?? ?? 0A 00 49 83 C1 F0 48 63 D2 48 C1 E2 04 4C 03 CA 4C 3B 49 08 49 0F 42 C1 45 85 C0 0F 95 C1 48 8B 00 88 48 05");
 		public StateAndIdPointer lua_settop = GetFunction<StateAndIdPointer>("85 D2 78 3F 4C 8B");
-		public StateAndIdAndSizeInteger lua_tointegerx = GetFunction<StateAndIdAndSizeInteger>("40 53 48 83 EC 40 48 8B 05 ?? ?? 0D 00 48 33 C4 48 89 44 24 30 49 8B D8 4C 8B C1 85 D2 7E 23 48 63 CA 48 8D 05 ?? ?? 0A 00 49 8B 50 10 48 83 C2 F0 48 C1 E1 04 48 03 D1 49 3B 50 08 48 0F 42 C2 EB 1A 81 FA F0 D8 FF FF 7E 0D 48 63 C2 48 C1 E0 04 48 03 41 08 EB 05 E8 44 ?? 00 00 83 78 0C 03");
+		public StateAndIdAndSizeInteger lua_tointegerx = GetFunction<StateAndIdAndSizeInteger>("40 53 48 83 EC 40 48 8B 05 ?? ?? 0D 00 48 33 C4 48 89 44 24 30 49 8B D8 4C 8B C1 85 D2 7E 23 48 63 CA 48 8D 05 ?? ?? 0A 00 49 8B 50 10 48 83 C2 F0 48 C1 E1 04 48 03 D1 49 3B 50 08 48 0F 42 C2 EB 1A 81 FA F0 D8 FF FF 7E 0D 48 63 C2 48 C1 E0 04 48 03 41 08 EB 05 E8 B4 ?? 00 00 83 78 0C 03");
 		public StringReturn lua_tolstring = GetFunction<StringReturn>("48 89 5C 24 08 48 89 74 24 10 48 89 7C 24 18 41 56 48 83 EC 20 48 63 F2");
 		public StateAndIdPointer lua_topointer = GetFunction<StateAndIdPointer>("48 83 EC 28 85 D2 7E 23 4C 8B 41 10 48 8D 05 ?? ?? 0A 00 49 83 C0 F0 48 63 D2 48 C1 E2 04 4C 03 C2 4C 3B 41 08 49 0F 42 C0 EB 1A 81 FA F0 D8 FF FF 7E 0D 48 63 C2 48 C1 E0 04 48 03 41 08 EB 05 E8 ?? ?? 00 00 8B 48 0C 83 F9 02 74 1D 83 F9 08");
 		public StateAndIdInteger lua_type = GetFunction<StateAndIdInteger>("48 83 EC 28 85 D2 7E 1A 48");
@@ -139,11 +140,11 @@ namespace HindenburgDll.Utils
 
 		public FieldPointer luaL_argerror = GetFunction<FieldPointer>("48 89 5C 24 08 48 89 74 24 10 57 48 83 EC 30 49 8B F8 8B F2");
 		public FieldPointer luaL_typeerror = GetFunction<FieldPointer>("48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 57 48 83 EC 30 49 8B E8 8B F2");
-		public StateAndIdPointer luaL_checkany = GetFunction<StateAndIdPointer>("48 89 5C 24 08 57 48 83 EC 20 8B DA 48 8B F9 E8 3C F7 FF FF");
-		public StackIndexPointer luaL_checktype = GetFunction<StackIndexPointer>("48 89 5C 24 08 48 89 74 24 10 57 48 83 EC 20 41 8B D8 8B FA 48 8B F1 E8 74 F5 FF FF");
-		public StateAndIdBool luaL_checkboolean = GetFunction<StateAndIdBool>("48 89 5C 24 08 57 48 83 EC 20 8B DA 48 8B F9 E8 FC F6 FF FF");
-		public StringReturn luaL_checklstring = GetFunction<StringReturn>("48 89 5C 24 08 57 48 83 EC 20 8B DA 48 8B F9 E8 AC ?? FF FF");
-		public StateAndIdInteger luaL_checkinteger = GetFunction<StateAndIdInteger>("48 89 5C 24 08 57 48 83 EC 20 4C 8D 44 24 40 8B DA 48 8B F9 E8 C7 ?? FF");
+		public StateAndIdPointer luaL_checkany = GetFunction<StateAndIdPointer>("48 89 5C 24 08 57 48 83 EC 20 8B DA 48 8B F9 E8 CC F6 FF FF");
+		public StackIndexPointer luaL_checktype = GetFunction<StackIndexPointer>("48 89 5C 24 08 48 89 74 24 10 57 48 83 EC 20 41 8B D8 8B FA 48 8B F1 E8 04 F5 FF FF");
+		public StateAndIdBool luaL_checkboolean = GetFunction<StateAndIdBool>("48 89 5C 24 08 57 48 83 EC 20 8B DA 48 8B F9 E8 8C F6 FF FF");
+		public StringReturn luaL_checklstring = GetFunction<StringReturn>("48 89 5C 24 08 57 48 83 EC 20 8B DA 48 8B F9 E8 3C EF FF FF");
+		public StateAndIdInteger luaL_checkinteger = GetFunction<StateAndIdInteger>("48 89 5C 24 08 57 48 83 EC 20 4C 8D 44 24 40 8B DA 48 8B F9 E8 57 ?? FF");
 		public FieldPointer luaL_checkudataC = GetFunction<FieldPointer>("48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 57 48 83 EC 20 49 8B E8 8B");
 
 		public luaerror luaL_errorC = GetFunction<luaerror>("48 89 54 24 10 4C 89 44 24 18 4C 89 4C 24 20 53 57 48 83 EC 28 BA 01 00");
